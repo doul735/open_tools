@@ -143,3 +143,26 @@ pytest
 
 실제 TMAP API 테스트는 `TMAP_API_KEY`가 있을 때만 실행됩니다.
 
+## 오픈소스 배포 준비
+
+이 저장소는 GitHub Actions CI와 PyPI Trusted Publishing용 워크플로를 포함합니다.
+
+- CI: `.github/workflows/ci.yml`
+- PyPI publish: `.github/workflows/publish.yml`
+- Dependabot: `.github/dependabot.yml`
+
+PyPI에 실제 배포하려면 GitHub 저장소를 만든 뒤 `pyproject.toml`에 실제 `project.urls`를 추가하고, PyPI에서 Trusted Publisher를 이 저장소와 `publish.yml` 워크플로에 연결하세요.
+
+로컬 배포 산출물 검증:
+
+```bash
+python -m pip install -e ".[dev]"
+python -m build
+```
+
+릴리스 전 최소 확인:
+
+```bash
+PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider
+python -m build
+```
