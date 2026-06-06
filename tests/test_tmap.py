@@ -6,7 +6,7 @@ import httpx
 import pytest
 
 from open_gil.cache import RouteCache
-from open_gil.errors import AUTH_INVALID, OpenGilError
+from open_gil.errors import AUTH_INVALID, QUOTA_EXCEEDED, OpenGilError
 from open_gil.models import ResolvedPlace
 from open_gil.timeutils import DEFAULT_TZ
 from open_gil.tmap import TMapClient, parse_poi_response, parse_transit_response
@@ -82,3 +82,15 @@ def test_tmap_auth_error_is_specific() -> None:
     assert exc.value.code == AUTH_INVALID
     assert "API 키" in exc.value.message
 
+
+def test_tmap_quota_error_is_specific() -> None:
+    def handler(request: httpx.Request) -> httpx.Response:
+        return httpx.Response(429, json={"message": "Limit Exceeded"})
+
+    client = TMapClient("test-key", http_client=httpx.Client(transport=httpx.MockTransport(handler)))
+
+    with pytest.raises(OpenGilError) as exc:
+        client.search_poi("강남역")
+
+    assert exc.value.code == QUOTA_EXCEEDED
+    assert "한도" in exc.value.message

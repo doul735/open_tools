@@ -10,6 +10,7 @@ PLACE_AMBIGUOUS = "OPEN_GIL_PLACE_AMBIGUOUS"
 PLACE_NOT_FOUND = "OPEN_GIL_PLACE_NOT_FOUND"
 ROUTE_NOT_FOUND = "OPEN_GIL_ROUTE_NOT_FOUND"
 API_ERROR = "OPEN_GIL_API_ERROR"
+QUOTA_EXCEEDED = "OPEN_GIL_QUOTA_EXCEEDED"
 TIME_INVALID = "OPEN_GIL_TIME_INVALID"
 INPUT_INVALID = "OPEN_GIL_INPUT_INVALID"
 
@@ -52,4 +53,3 @@ def error_envelope(error: OpenGilError, *, debug: bool = False) -> dict[str, Any
 
 def ok_envelope(data: dict[str, Any]) -> dict[str, Any]:
     return {"status": "ok", "data": data}
-

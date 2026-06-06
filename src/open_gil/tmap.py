@@ -11,6 +11,7 @@ from .errors import (
     API_ERROR,
     AUTH_INVALID,
     PLACE_NOT_FOUND,
+    QUOTA_EXCEEDED,
     ROUTE_NOT_FOUND,
     OpenGilError,
 )
@@ -334,6 +335,15 @@ def _poi_address(item: dict[str, Any]) -> str | None:
 def _error_from_response(response: httpx.Response) -> OpenGilError:
     message = _response_message(response)
     lower = message.lower()
+    if response.status_code == 429 or any(token in lower for token in ("limit exceeded", "too many requests", "quota")):
+        return OpenGilError(
+            QUOTA_EXCEEDED,
+            "TMAP API 호출 한도를 초과했습니다.",
+            "오늘 남은 호출 한도가 없을 수 있습니다. 다음 한도 초기화 후 다시 시도하거나 TMAP 요금제/쿼터를 확인하세요.",
+            debug_detail=message,
+            http_status=response.status_code,
+        )
+
     if response.status_code in (401, 403) or (
         response.status_code == 400 and ("key" in lower or "appkey" in lower or "auth" in lower)
     ):
@@ -380,4 +390,3 @@ def _response_message(response: httpx.Response) -> str:
         if isinstance(error, str):
             return error
     return f"HTTP {response.status_code}"
-

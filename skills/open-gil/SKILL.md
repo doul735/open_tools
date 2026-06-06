@@ -65,6 +65,7 @@ For `event_at` and `arrive_by`, the MVP uses a quota-safe single TMAP route look
 - `OPEN_GIL_PLACE_AMBIGUOUS`: ask the user to pick one candidate; do not choose automatically.
 - `OPEN_GIL_PLACE_NOT_FOUND`: ask for a more specific place or coordinates.
 - `OPEN_GIL_ROUTE_NOT_FOUND`: explain that TMAP did not return a qualifying route for the inputs.
+- `OPEN_GIL_QUOTA_EXCEEDED`: explain that the TMAP daily/request quota is exhausted; do not keep retrying.
 - `OPEN_GIL_API_ERROR`: report the API cause and retry only if the user wants another attempt.
 - `OPEN_GIL_TIME_INVALID`: ask for an exact date/time.
 
