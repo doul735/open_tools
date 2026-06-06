@@ -1,53 +1,29 @@
 # open-gil
 
-`open-gil`은 TMAP 대중교통 API를 근거로 출발 시각과 경로 후보를 계산하는 Python CLI입니다. Codex, Claude Code 같은 LLM은 자연어를 구조화하고 확인 질문을 하는 역할만 맡고, 경로/환승/소요시간/출발시각은 CLI가 API 응답으로 계산합니다.
+TMAP API로 계산하고, LLM이 지어내지 못하게 막는 대중교통 출발시간 CLI.
 
-MVP 범위는 서울, 경기, 인천입니다.
+`open-gil`은 “몇 시에 출발해야 하지?”라는 질문에 대해 출발지, 목적지, 일정 시각을 받아 대중교통 경로와 추천 출발 시간을 계산합니다. Codex, Claude Code 같은 LLM은 자연어를 구조화하고 확인 질문을 하는 데만 쓰고, 출발시각, 환승, 소요시간, 도착시각은 TMAP 대중교통 API 응답으로만 만듭니다.
 
-## 설치
+초기 MVP 범위는 서울, 경기, 인천입니다.
 
-배포 후 일반 사용자는 `pipx` 설치를 권장합니다.
+## Why
+
+LLM은 길찾기 질문에 그럴듯한 답을 만들 수 있지만, 실제 대중교통 시간표와 환승 경로를 보장하지 못합니다. `open-gil`은 이 부분을 분리합니다.
+
+- LLM: “사용자가 말한 시간이 일정 시작인지, 도착 마감인지, 출발 시간인지” 확인
+- CLI: 장소 검색, 좌표 확정, TMAP 경로 조회, 후보 출발시각 계산
+- 사용자: 네이버지도와 카카오맵 링크로 최종 확인
+
+핵심 원칙은 단순합니다. 모르면 추측하지 않고, API가 준 것만 말합니다.
+
+## Quick Start
 
 ```bash
 pipx install open-gil
-```
-
-개발 중인 로컬 체크아웃에서는 다음처럼 설치합니다.
-
-```bash
-python -m venv .venv
-. .venv/bin/activate
-python -m pip install -e ".[dev]"
-```
-
-## TMAP API 키
-
-1. SK Open API에서 앱을 만들고 TMAP API appKey를 발급합니다.
-2. TMAP 대중교통 API와 POI 검색 API 사용 권한을 확인합니다.
-3. 환경변수나 로컬 설정 파일 중 하나로 키를 설정합니다.
-
-환경변수가 우선입니다.
-
-```bash
-export TMAP_API_KEY="발급받은_appKey"
-```
-
-설정 파일에 저장할 수도 있습니다. 파일은 `~/.config/open-gil/config.json`에 평문으로 저장되고 POSIX 환경에서는 `0600` 권한으로 맞춥니다.
-
-```bash
 open-gil config set-key
 ```
 
-공식 문서:
-
-- TMAP 대중교통 API: https://transit.tmapmobility.com/docs/routes
-- TMAP POI 검색 API: https://tmap-skopenapi.readme.io/reference/%EC%9E%A5%EC%86%8C%ED%86%B5%ED%95%A9%EA%B2%80%EC%83%89
-- NAVER Maps URL Scheme: https://guide.ncloud-docs.com/docs/en/maps-url-scheme
-- KakaoMap URL Scheme: https://apis.map.kakao.com/ios_v2/docs/getting-started/urlscheme/
-
-## 사용 예시
-
-일정 시작 시각 기준입니다. `--event-at`은 15분 전 도착을 목표로 합니다.
+그 다음 바로 물어볼 수 있습니다.
 
 ```bash
 open-gil plan \
@@ -56,61 +32,85 @@ open-gil plan \
   --event-at "2026-06-06 13:00"
 ```
 
-정확히 특정 시각까지 도착해야 하면 `--arrive-by`를 씁니다. 이 경우 추가 15분 버퍼는 적용하지 않습니다.
+`--event-at`은 일정 시작 시각입니다. open-gil은 기본적으로 15분 전 도착을 목표로 가장 늦게 출발할 수 있는 후보를 추천합니다.
 
-```bash
-open-gil plan --origin "강남역" --destination "서울역" --arrive-by "18:30"
+## What You Get
+
+목표 도착 기준으로 세 가지 후보를 보여줍니다.
+
+- 이전 수단: 추천보다 하나 이른 선택지
+- 추천: 목표 도착시각을 만족하는 가장 늦은 출발
+- 다음 수단: 추천보다 하나 늦은 선택지, 늦을 수 있음
+
+예시 출력은 이런 형태입니다.
+
+```text
+송도달빛축제공원역 -> 올림픽공원 올림픽홀
+기준: 2026-06-06 13:00 일정 시작, 목표 도착 2026-06-06 12:45
+
+이전 수단: 2026-06-06 11:15 출발 -> 2026-06-06 12:35 도착 / 소요 1시간 20분 / 목표 도착 가능
+  경로: 도보 -> 지하철 인천1호선 -> 지하철 7호선 -> 도보
+
+추천: 2026-06-06 11:25 출발 -> 2026-06-06 12:41 도착 / 소요 1시간 16분 / 목표 도착 가능
+  경로: 도보 -> 지하철 인천1호선 -> 지하철 7호선 -> 도보
+
+다음 수단: 2026-06-06 11:35 출발 -> 2026-06-06 12:54 도착 / 소요 1시간 19분 / 목표보다 늦을 수 있음
+  경로: 도보 -> 지하철 인천1호선 -> 지하철 7호선 -> 도보
+
+확인 링크
+- 네이버지도: nmap://route/public?...
+- 카카오맵: http://m.map.kakao.com/scheme/route?...
+
+TMAP API 응답 기준입니다. 현장 지연, 운행 중단, 행사장 혼잡은 실제와 다를 수 있습니다.
 ```
 
-고정 출발 시각 조회는 `--depart-at`입니다.
+위 출력은 형식 예시입니다. 실제 시간과 경로는 실행 시점의 TMAP API 응답에 따라 달라집니다.
+
+## Time Modes
+
+세 가지 시간 의도를 명확히 나눕니다.
 
 ```bash
-open-gil plan --origin "강남역" --destination "서울역" --depart-at "09:00"
+# 일정 시작 시각. 15분 전 도착 목표.
+open-gil plan --origin "강남역" --destination "서울역" --event-at "2026-06-06 19:00"
+
+# 특정 시각까지 도착. 추가 버퍼 없음.
+open-gil plan --origin "강남역" --destination "서울역" --arrive-by "2026-06-06 18:30"
+
+# 특정 시각에 출발.
+open-gil plan --origin "강남역" --destination "서울역" --depart-at "2026-06-06 09:00"
 ```
 
-좌표를 직접 넣을 수도 있습니다. 좌표가 있으면 장소명 검색보다 우선합니다.
+날짜 없이 `09:00`처럼 입력하면 직접 CLI 사용에서는 오늘 날짜로 해석합니다. LLM 스킬 흐름에서는 날짜를 사용자에게 확인해야 합니다.
+
+## JSON for Agents
+
+Codex나 Claude Code 같은 에이전트는 JSON을 쓰는 편이 안전합니다.
 
 ```bash
-open-gil plan \
-  --origin-lat 37.407722 --origin-lon 126.625572 --origin-label "송도달빛축제공원역" \
-  --destination-lat 37.516289 --destination-lon 127.117314 --destination-label "올림픽홀" \
-  --event-at "2026-06-06 13:00"
-```
-
-## JSON 입력과 출력
-
-파일 입력:
-
-```bash
-open-gil plan --input plan.json --json
-```
-
-stdin 입력:
-
-```bash
-cat plan.json | open-gil plan --json
-```
-
-예시 JSON:
-
-```json
+cat <<'JSON' | open-gil plan --json
 {
   "origin": {"name": "송도달빛축제공원역"},
   "destination": {"name": "올림픽공원 올림픽홀"},
   "event_at": "2026-06-06 13:00"
 }
+JSON
 ```
 
-성공 응답은 항상 다음 envelope입니다.
+성공 응답은 항상 envelope 형태입니다.
 
 ```json
 {
   "status": "ok",
-  "data": {}
+  "data": {
+    "time_mode": "event_at",
+    "arrival_buffer_minutes": 15,
+    "candidates": []
+  }
 }
 ```
 
-실패 응답도 안정된 envelope와 `OPEN_GIL_*` 코드를 사용합니다.
+오류도 구조화됩니다.
 
 ```json
 {
@@ -123,35 +123,80 @@ cat plan.json | open-gil plan --json
 }
 ```
 
-## 동작 원칙
+장소 후보가 애매하면 `OPEN_GIL_PLACE_AMBIGUOUS`와 후보 목록을 반환합니다. 에이전트는 이때 임의로 고르지 말고 사용자에게 선택을 물어야 합니다.
 
-- 계산 근거는 TMAP 대중교통 API입니다.
-- 네이버지도와 카카오맵 링크는 사용자가 직접 확인하기 위한 링크이며 계산 근거가 아닙니다.
-- 장소 후보가 여러 개면 자동 선택하지 않습니다. 일반 터미널에서는 번호 선택을 요청하고, `--json`에서는 `OPEN_GIL_PLACE_AMBIGUOUS`와 후보 목록을 반환합니다.
-- `--event-at`은 일정 시작 15분 전 도착을 목표로 합니다. 도착은 목적지까지의 도보 이동을 포함한 TMAP 경로 결과 기준입니다.
-- 목표 도착 모드는 목표 시각 3시간 전부터 5분 간격으로 조회하고, 이전 후보/추천 후보/다음 후보를 반환합니다.
-- TMAP 응답 이외의 별도 실시간 지연, 운행 중단, 행사 혼잡 정보는 보장하지 않습니다.
-- 원문 자연어 프롬프트는 외부 API로 보내거나 캐시하지 않습니다.
+## Coordinates
 
-## 테스트
+이미 장소를 확정했다면 좌표를 직접 넣을 수 있습니다. 좌표가 있으면 장소명 검색보다 우선합니다.
+
+```bash
+open-gil plan \
+  --origin-lat 37.407722 --origin-lon 126.625572 --origin-label "송도달빛축제공원역" \
+  --destination-lat 37.516289 --destination-lon 127.117314 --destination-label "올림픽홀" \
+  --event-at "2026-06-06 13:00"
+```
+
+## API Key
+
+TMAP API 키가 필요합니다.
+
+1. SK Open API에서 앱을 만들고 appKey를 발급합니다.
+2. TMAP 대중교통 API와 POI 검색 API 사용 권한을 확인합니다.
+3. 환경변수나 로컬 설정 파일로 키를 설정합니다.
+
+환경변수가 우선입니다.
+
+```bash
+export TMAP_API_KEY="발급받은_appKey"
+```
+
+로컬 파일에 저장할 수도 있습니다.
+
+```bash
+open-gil config set-key
+```
+
+설정 파일은 `~/.config/open-gil/config.json`에 평문으로 저장됩니다. POSIX 환경에서는 `0600` 권한으로 맞춥니다.
+
+공식 문서:
+
+- TMAP 대중교통 API: https://transit.tmapmobility.com/docs/routes
+- TMAP POI 검색 API: https://tmap-skopenapi.readme.io/reference/%EC%9E%A5%EC%86%8C%ED%86%B5%ED%95%A9%EA%B2%80%EC%83%89
+- NAVER Maps URL Scheme: https://guide.ncloud-docs.com/docs/en/maps-url-scheme
+- KakaoMap URL Scheme: https://apis.map.kakao.com/ios_v2/docs/getting-started/urlscheme/
+
+## Install from Source
+
+```bash
+git clone <repository-url>
+cd open-gil
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install -e ".[dev]"
+```
+
+## Tests
 
 기본 테스트는 fixture/mock 기반이라 API 키가 없어도 실행됩니다.
 
 ```bash
-pytest
+PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider
 ```
 
 실제 TMAP API 테스트는 `TMAP_API_KEY`가 있을 때만 실행됩니다.
 
-## 오픈소스 배포 준비
+```bash
+export TMAP_API_KEY="발급받은_appKey"
+PYTHONDONTWRITEBYTECODE=1 python -m pytest tests/test_live_tmap.py -p no:cacheprovider
+```
+
+## Release Prep
 
 이 저장소는 GitHub Actions CI와 PyPI Trusted Publishing용 워크플로를 포함합니다.
 
 - CI: `.github/workflows/ci.yml`
 - PyPI publish: `.github/workflows/publish.yml`
 - Dependabot: `.github/dependabot.yml`
-
-PyPI에 실제 배포하려면 GitHub 저장소를 만든 뒤 `pyproject.toml`에 실제 `project.urls`를 추가하고, PyPI에서 Trusted Publisher를 이 저장소와 `publish.yml` 워크플로에 연결하세요.
 
 로컬 배포 산출물 검증:
 
@@ -160,9 +205,12 @@ python -m pip install -e ".[dev]"
 python -m build
 ```
 
-릴리스 전 최소 확인:
+PyPI에 실제 배포하려면 GitHub 저장소를 만든 뒤 `pyproject.toml`에 실제 `project.urls`를 추가하고, PyPI에서 Trusted Publisher를 이 저장소와 `publish.yml` 워크플로에 연결하세요.
 
-```bash
-PYTHONDONTWRITEBYTECODE=1 python -m pytest -p no:cacheprovider
-python -m build
-```
+## Limits
+
+- 현재 MVP 범위는 서울, 경기, 인천입니다.
+- 계산 근거는 TMAP 대중교통 API입니다.
+- 네이버지도와 카카오맵 링크는 확인용이며 계산 근거가 아닙니다.
+- 별도 실시간 지연, 운행 중단, 행사장 혼잡 정보를 보장하지 않습니다.
+- 원문 자연어 프롬프트는 외부 API로 보내거나 캐시하지 않습니다.
