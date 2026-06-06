@@ -19,8 +19,9 @@ Use `open-gil` for Seoul, Gyeonggi, and Incheon public-transit planning. The CLI
 3. Call the CLI with JSON and `--json`.
 4. Read only the JSON envelope. Do not scrape human text.
 5. If the CLI returns `OPEN_GIL_PLACE_AMBIGUOUS`, show the candidates and ask the user to choose. Re-run with coordinates and labels from the chosen candidate.
-6. Summarize the selected result in Korean and include the NAVER/Kakao verification links.
+6. Summarize the selected result in Korean. Always include boarding and alighting points from `candidates[].legs[]` for every bus/subway/train leg.
 7. If `planning_note` is present, mention it. Do not claim that previous/next departures were exhaustively searched.
+8. Include the NAVER/Kakao verification links.
 
 ## Commands
 
@@ -72,6 +73,7 @@ For `event_at` and `arrive_by`, the MVP uses a quota-safe single TMAP route look
 ## Output Guardrails
 
 - Say the result is based on TMAP API data.
+- Do not stop at a route summary such as "BUS M6450 -> BUS 360"; include where to board and where to get off.
 - Mention that field delays, disruptions, and event congestion can differ.
 - NAVER Maps and KakaoMap links are verification/open links only, not calculation sources.
 - Never send or store the user's raw natural-language prompt through open-gil.
