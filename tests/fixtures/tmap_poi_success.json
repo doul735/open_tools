@@ -1,0 +1,30 @@
+{
+  "searchPoiInfo": {
+    "totalCount": "2",
+    "pois": {
+      "poi": [
+        {
+          "id": "poi-origin",
+          "name": "송도달빛축제공원역",
+          "frontLat": "37.407722",
+          "frontLon": "126.625572",
+          "newAddressList": {
+            "newAddress": [
+              {"fullAddressRoad": "인천광역시 연수구 송도동"}
+            ]
+          }
+        },
+        {
+          "id": "poi-destination",
+          "name": "올림픽공원 올림픽홀",
+          "noorLat": "37.516289",
+          "noorLon": "127.117314",
+          "upperAddrName": "서울특별시",
+          "middleAddrName": "송파구",
+          "lowerAddrName": "방이동"
+        }
+      ]
+    }
+  }
+}
+
