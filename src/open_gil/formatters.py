@@ -41,8 +41,8 @@ def format_plan_text(result: PlanResult) -> str:
         recommended = result.candidates[0]
     if recommended:
         lines.append("추천 경로 상세")
-        for leg in recommended.legs:
-            lines.append(f"- {_format_leg(leg)}")
+        for line in _format_legs(recommended.legs, origin_name=result.origin.name, destination_name=result.destination.name):
+            lines.append(f"- {line}")
         if recommended.service_notes:
             for note in recommended.service_notes:
                 lines.append(f"- 운행 참고: {note}")
@@ -88,13 +88,98 @@ def _format_candidate(candidate: RouteCandidate) -> list[str]:
     return [" / ".join(parts), f"  경로: {candidate.route_summary}"]
 
 
-def _format_leg(leg: RouteLeg) -> str:
-    route = f" {leg.route_name}" if leg.route_name else ""
-    place = ""
-    if leg.start_name or leg.end_name:
-        place = f": {leg.start_name or '?'} -> {leg.end_name or '?'}"
+def _format_legs(legs: list[RouteLeg], *, origin_name: str, destination_name: str) -> list[str]:
+    lines: list[str] = []
+    for index, leg in enumerate(legs):
+        previous_leg = legs[index - 1] if index > 0 else None
+        next_leg = legs[index + 1] if index + 1 < len(legs) else None
+        formatted = _format_leg_with_context(
+            leg,
+            previous_leg,
+            next_leg,
+            origin_name=origin_name,
+            destination_name=destination_name,
+        )
+        if formatted:
+            lines.append(formatted)
+    return lines
+
+
+def _format_leg_with_context(
+    leg: RouteLeg,
+    previous_leg: RouteLeg | None,
+    next_leg: RouteLeg | None,
+    *,
+    origin_name: str,
+    destination_name: str,
+) -> str | None:
+    if _is_zero_transfer_walk(leg) and previous_leg and next_leg:
+        if previous_leg.mode != "WALK" and next_leg.mode != "WALK":
+            station = leg.start_name or leg.end_name or previous_leg.end_name or next_leg.start_name or "같은 정류장"
+            return (
+                f"같은 정류장 환승: {station}에서 "
+                f"{_vehicle_label(previous_leg)} 하차 후 {_vehicle_label(next_leg)} 탑승"
+            )
+
+    if leg.mode == "WALK":
+        if _is_zero_transfer_walk(leg):
+            return None
+        place = _place_arrow(leg, origin_name=origin_name, destination_name=destination_name)
+        detail = _walk_detail(leg)
+        return f"도보: {place}{detail}"
+
+    place = _boarding_arrow(leg, origin_name=origin_name, destination_name=destination_name)
     duration = f" ({_fmt_duration(leg.section_time_seconds)})" if leg.section_time_seconds else ""
-    return f"{_mode_ko(leg.mode)}{route}{place}{duration}"
+    return f"{_vehicle_label(leg)}: {place}{duration}"
+
+
+def _is_zero_transfer_walk(leg: RouteLeg) -> bool:
+    return (
+        leg.mode == "WALK"
+        and (leg.distance_meters or 0) == 0
+        and (leg.section_time_seconds or 0) == 0
+        and bool(leg.start_name or leg.end_name)
+    )
+
+
+def _vehicle_label(leg: RouteLeg) -> str:
+    route = f" {leg.route_name}" if leg.route_name else ""
+    return f"{_mode_ko(leg.mode)}{route}"
+
+
+def _place_arrow(leg: RouteLeg, *, origin_name: str, destination_name: str) -> str:
+    start = _display_place(leg.start_name, origin_name=origin_name, destination_name=destination_name)
+    end = _display_place(leg.end_name, origin_name=origin_name, destination_name=destination_name)
+    if leg.start_name == "출발지" and leg.end_name and end == origin_name:
+        start = "출발지"
+    return (
+        f"{start} -> "
+        f"{end}"
+    )
+
+
+def _boarding_arrow(leg: RouteLeg, *, origin_name: str, destination_name: str) -> str:
+    return (
+        f"{_display_place(leg.start_name, origin_name=origin_name, destination_name=destination_name)} 승차 -> "
+        f"{_display_place(leg.end_name, origin_name=origin_name, destination_name=destination_name)} 하차"
+    )
+
+
+def _display_place(name: str | None, *, origin_name: str, destination_name: str) -> str:
+    if name == "출발지":
+        return origin_name
+    if name == "도착지":
+        return destination_name
+    return name or "?"
+
+
+def _walk_detail(leg: RouteLeg) -> str:
+    details: list[str] = []
+    if leg.section_time_seconds:
+        details.append(_fmt_duration(leg.section_time_seconds))
+    if leg.distance_meters:
+        details.append(f"{leg.distance_meters}m")
+    return f" ({', '.join(details)})" if details else ""
 
 
 def _fmt_duration(seconds: int | None) -> str:

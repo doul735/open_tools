@@ -268,8 +268,20 @@ def _route_signature(legs: list[RouteLeg]) -> str:
 
 def _route_summary(legs: list[RouteLeg]) -> str:
     labels: list[str] = []
-    for leg in legs:
-        if leg.mode == "WALK":
+    for index, leg in enumerate(legs):
+        previous_leg = legs[index - 1] if index > 0 else None
+        next_leg = legs[index + 1] if index + 1 < len(legs) else None
+        if (
+            leg.mode == "WALK"
+            and (leg.distance_meters or 0) == 0
+            and (leg.section_time_seconds or 0) == 0
+            and previous_leg
+            and next_leg
+            and previous_leg.mode != "WALK"
+            and next_leg.mode != "WALK"
+        ):
+            labels.append("같은 정류장 환승")
+        elif leg.mode == "WALK":
             labels.append("도보")
         elif leg.route_name:
             labels.append(f"{_mode_ko(leg.mode)} {leg.route_name}")

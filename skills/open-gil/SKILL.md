@@ -74,6 +74,7 @@ For `event_at` and `arrive_by`, the MVP uses a quota-safe single TMAP route look
 
 - Say the result is based on TMAP API data.
 - Do not stop at a route summary such as "BUS M6450 -> BUS 360"; include where to board and where to get off.
+- If a WALK leg has the same start/end name with 0m or 0 seconds between two transit legs, summarize it as a same-stop transfer using the previous alighting route and next boarding route.
 - Mention that field delays, disruptions, and event congestion can differ.
 - NAVER Maps and KakaoMap links are verification/open links only, not calculation sources.
 - Never send or store the user's raw natural-language prompt through open-gil.

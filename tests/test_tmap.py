@@ -41,6 +41,39 @@ def test_parse_transit_response() -> None:
     assert "SUBWAY:I1" in candidate.route_signature
 
 
+def test_route_summary_names_same_stop_transfer() -> None:
+    data = _fixture("tmap_route_success.json")
+    data["metaData"]["plan"]["itineraries"][0]["legs"] = [
+        {
+            "mode": "BUS",
+            "route": "광역:M6450",
+            "routeId": "M6450",
+            "sectionTime": 4247,
+            "start": {"name": "송도달빛축제공원역"},
+            "end": {"name": "선릉역"},
+        },
+        {
+            "mode": "WALK",
+            "sectionTime": 0,
+            "distance": 0,
+            "start": {"name": "선릉역"},
+            "end": {"name": "선릉역"},
+        },
+        {
+            "mode": "BUS",
+            "route": "간선:360",
+            "routeId": "360",
+            "sectionTime": 823,
+            "start": {"name": "선릉역"},
+            "end": {"name": "잠실트리지움아파트앞"},
+        },
+    ]
+
+    candidate = parse_transit_response(data, datetime(2026, 6, 6, 11, 0, tzinfo=DEFAULT_TZ))
+
+    assert candidate.route_summary == "버스 광역:M6450 -> 같은 정류장 환승 -> 버스 간선:360"
+
+
 def test_tmap_client_sends_route_request_and_uses_cache(tmp_path: Path) -> None:
     calls = 0
 
