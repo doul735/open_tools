@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import re
-from datetime import datetime, timedelta
+from datetime import datetime
 from zoneinfo import ZoneInfo
 
 from .errors import OpenGilError, TIME_INVALID
@@ -77,12 +77,6 @@ def tmap_search_dttm(value: datetime) -> str:
     return value.astimezone(DEFAULT_TZ).strftime("%Y%m%d%H%M")
 
 
-def candidate_departures(target_arrival: datetime, *, hours: int = 3, step_minutes: int = 5) -> list[datetime]:
-    start = target_arrival - timedelta(hours=hours)
-    count = int((hours * 60) / step_minutes) + 1
-    return [start + timedelta(minutes=step_minutes * index) for index in range(count)]
-
-
 def _apply_meridiem(hour: int, meridiem: str | None) -> int:
     if meridiem == "오전":
         if hour == 12:
@@ -101,4 +95,3 @@ def _invalid_time(value: object) -> OpenGilError:
         f"시간 값을 해석할 수 없습니다: {value}",
         "예: 13:00, 2026-06-06 13:00, 202606061300 형식으로 입력하세요.",
     )
-

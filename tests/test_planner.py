@@ -57,8 +57,10 @@ def test_event_at_applies_15_minute_buffer_and_selects_latest_qualifying() -> No
     assert result.target_arrival_at == datetime(2026, 6, 6, 11, 45, tzinfo=DEFAULT_TZ)
     assert recommended.depart_at == datetime(2026, 6, 6, 11, 25, tzinfo=DEFAULT_TZ)
     assert recommended.arrive_at == datetime(2026, 6, 6, 11, 45, tzinfo=DEFAULT_TZ)
-    assert [candidate.kind for candidate in result.candidates] == ["previous", "recommended", "next"]
-    assert len(client.route_calls) == 37
+    assert [candidate.kind for candidate in result.candidates] == ["recommended"]
+    assert result.search_strategy == "quota_safe_target_arrival_single_lookup"
+    assert result.route_api_calls_used == 1
+    assert client.route_calls == [datetime(2026, 6, 6, 9, 45, tzinfo=DEFAULT_TZ)]
 
 
 def test_arrive_by_has_no_extra_buffer() -> None:
@@ -76,6 +78,7 @@ def test_arrive_by_has_no_extra_buffer() -> None:
     recommended = next(candidate for candidate in result.candidates if candidate.kind == "recommended")
     assert result.arrival_buffer_minutes == 0
     assert recommended.depart_at == datetime(2026, 6, 6, 11, 40, tzinfo=DEFAULT_TZ)
+    assert result.search_strategy == "quota_safe_target_arrival_single_lookup"
 
 
 def test_depart_at_returns_single_fixed_candidate() -> None:
@@ -111,4 +114,3 @@ def test_ambiguous_place_without_selector_returns_structured_error() -> None:
 
     assert exc.value.code == PLACE_AMBIGUOUS
     assert len(exc.value.details["candidates"]) == 2
-

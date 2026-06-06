@@ -189,8 +189,10 @@ class PlanResult(BaseModel):
     arrival_buffer_minutes: int
     candidates: list[RouteCandidate]
     verification_links: VerificationLinks
+    search_strategy: str = "single_lookup"
+    route_api_calls_used: int = 1
+    planning_note: str | None = None
     source: str = "TMAP Transit API"
     disclaimer: str = (
         "TMAP API 응답 기준입니다. 현장 지연, 운행 중단, 행사장 혼잡은 실제와 다를 수 있습니다."
     )
-

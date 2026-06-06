@@ -48,6 +48,10 @@ def format_plan_text(result: PlanResult) -> str:
                 lines.append(f"- 운행 참고: {note}")
         lines.append("")
 
+    if result.planning_note:
+        lines.append(f"탐색 방식: {result.planning_note}")
+        lines.append("")
+
     lines.append("확인 링크")
     lines.append(f"- 네이버지도: {result.verification_links.naver_maps}")
     lines.append(f"- 카카오맵: {result.verification_links.kakao_map}")
@@ -116,4 +120,3 @@ def _mode_ko(mode: str) -> str:
         "AIRPLANE": "항공",
         "FERRY": "해운",
     }.get(mode, mode)
-

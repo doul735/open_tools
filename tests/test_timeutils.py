@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from open_gil.timeutils import DEFAULT_TZ, candidate_departures, parse_local_datetime, tmap_search_dttm
+from open_gil.timeutils import DEFAULT_TZ, parse_local_datetime, tmap_search_dttm
 
 
 def test_parse_date_less_time_uses_today() -> None:
@@ -22,13 +22,4 @@ def test_tmap_search_dttm_format() -> None:
 
     assert tmap_search_dttm(parsed) == "202606061305"
 
-
-def test_candidate_departures_three_hours_by_five_minutes() -> None:
-    target = datetime(2026, 6, 6, 12, 0, tzinfo=DEFAULT_TZ)
-
-    departures = candidate_departures(target)
-
-    assert len(departures) == 37
-    assert departures[0] == datetime(2026, 6, 6, 9, 0, tzinfo=DEFAULT_TZ)
-    assert departures[-1] == target
 
