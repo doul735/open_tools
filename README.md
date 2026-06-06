@@ -130,6 +130,8 @@ JSON
 
 장소 후보가 애매하면 `OPEN_GIL_PLACE_AMBIGUOUS`와 후보 목록을 반환합니다. 에이전트는 이때 임의로 고르지 말고 사용자에게 선택을 물어야 합니다.
 
+403 Forbidden처럼 키는 전달됐지만 호출 권한이 거절되면 `OPEN_GIL_AUTH_FORBIDDEN`으로 반환합니다. 이 경우 TMAP 앱키에 해당 API 상품/권한이 활성화되어 있는지, 요금제/도메인/IP 제한이 있는지 확인해야 합니다.
+
 호출 한도 초과는 `OPEN_GIL_QUOTA_EXCEEDED`로 반환합니다. 이 경우 자동 재시도하지 말고 TMAP 한도 초기화나 요금제/쿼터를 확인해야 합니다.
 
 ## Coordinates

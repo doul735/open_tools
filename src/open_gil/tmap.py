@@ -8,6 +8,7 @@ import httpx
 
 from .cache import RouteCache, cache_key
 from .errors import (
+    AUTH_FORBIDDEN,
     API_ERROR,
     AUTH_INVALID,
     PLACE_NOT_FOUND,
@@ -356,7 +357,16 @@ def _error_from_response(response: httpx.Response) -> OpenGilError:
             http_status=response.status_code,
         )
 
-    if response.status_code in (401, 403) or (
+    if response.status_code == 403:
+        return OpenGilError(
+            AUTH_FORBIDDEN,
+            "TMAP API 호출 권한이 없습니다.",
+            "TMAP 앱키에 현재 호출한 API 상품/권한이 활성화되어 있는지, 요금제/도메인/IP 제한이 있는지 확인하세요.",
+            debug_detail=message,
+            http_status=response.status_code,
+        )
+
+    if response.status_code == 401 or (
         response.status_code == 400 and ("key" in lower or "appkey" in lower or "auth" in lower)
     ):
         return OpenGilError(

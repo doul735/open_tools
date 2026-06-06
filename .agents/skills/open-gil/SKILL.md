@@ -62,7 +62,8 @@ For `event_at` and `arrive_by`, the MVP uses a quota-safe single TMAP route look
 ## Error Handling
 
 - `OPEN_GIL_AUTH_MISSING`: explain that `TMAP_API_KEY` or `open-gil config set-key` is needed.
-- `OPEN_GIL_AUTH_INVALID`: tell the user the TMAP key is invalid; do not say only "400" or "401".
+- `OPEN_GIL_AUTH_INVALID`: tell the user the TMAP key is invalid or the authentication format is wrong; do not say only "400" or "401".
+- `OPEN_GIL_AUTH_FORBIDDEN`: tell the user the key was accepted enough to reach TMAP but this API call is forbidden; ask them to check API product permission, paid plan status, and domain/IP restrictions.
 - `OPEN_GIL_PLACE_AMBIGUOUS`: ask the user to pick one candidate; do not choose automatically.
 - `OPEN_GIL_PLACE_NOT_FOUND`: ask for a more specific place or coordinates.
 - `OPEN_GIL_ROUTE_NOT_FOUND`: explain that TMAP did not return a qualifying route for the inputs.
