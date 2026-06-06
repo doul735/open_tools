@@ -1,0 +1,125 @@
+{
+  "status": "ok",
+  "data": {
+    "origin": {
+      "name": "송도달빛축제공원역",
+      "lat": 37.407722,
+      "lon": 126.625572,
+      "address": null,
+      "poi_id": null,
+      "source": "input_coordinates"
+    },
+    "destination": {
+      "name": "올림픽홀",
+      "lat": 37.516289,
+      "lon": 127.117314,
+      "address": null,
+      "poi_id": null,
+      "source": "input_coordinates"
+    },
+    "time_mode": "event_at",
+    "requested_time": "2026-06-08T13:00:00+09:00",
+    "target_arrival_at": "2026-06-08T12:45:00+09:00",
+    "arrival_buffer_minutes": 15,
+    "candidates": [
+      {
+        "kind": "recommended",
+        "depart_at": "2026-06-08T11:04:38+09:00",
+        "arrive_at": "2026-06-08T12:45:00+09:00",
+        "duration_seconds": 6022,
+        "transfer_count": 2,
+        "total_walk_time_seconds": 483,
+        "total_walk_distance_meters": 556,
+        "total_distance_meters": 64187,
+        "total_fare": 3700,
+        "route_summary": "도보 -> 버스 광역:M6450 -> 같은 정류장 환승 -> 버스 간선:360 -> 같은 정류장 환승 -> 버스 지선:3323 -> 도보",
+        "route_signature": "BUS:1000671001:송도달빛축제공원역>선릉역|BUS:1021085001:선릉역>잠실트리지움아파트앞|BUS:1021067001:잠실트리지움아파트앞>올림픽베어스타운아파트앞",
+        "legs": [
+          {
+            "mode": "WALK",
+            "route_name": null,
+            "route_id": null,
+            "start_name": "출발지",
+            "end_name": "송도달빛축제공원역",
+            "section_time_seconds": 167,
+            "distance_meters": 174,
+            "service": null
+          },
+          {
+            "mode": "BUS",
+            "route_name": "광역:M6450",
+            "route_id": "1000671001",
+            "start_name": "송도달빛축제공원역",
+            "end_name": "선릉역",
+            "section_time_seconds": 4247,
+            "distance_meters": 57527,
+            "service": 1
+          },
+          {
+            "mode": "WALK",
+            "route_name": null,
+            "route_id": null,
+            "start_name": "선릉역",
+            "end_name": "선릉역",
+            "section_time_seconds": 0,
+            "distance_meters": 0,
+            "service": null
+          },
+          {
+            "mode": "BUS",
+            "route_name": "간선:360",
+            "route_id": "1021085001",
+            "start_name": "선릉역",
+            "end_name": "잠실트리지움아파트앞",
+            "section_time_seconds": 823,
+            "distance_meters": 3759,
+            "service": 1
+          },
+          {
+            "mode": "WALK",
+            "route_name": null,
+            "route_id": null,
+            "start_name": "잠실트리지움아파트앞",
+            "end_name": "잠실트리지움아파트앞",
+            "section_time_seconds": 0,
+            "distance_meters": 0,
+            "service": null
+          },
+          {
+            "mode": "BUS",
+            "route_name": "지선:3323",
+            "route_id": "1021067001",
+            "start_name": "잠실트리지움아파트앞",
+            "end_name": "올림픽베어스타운아파트앞",
+            "section_time_seconds": 469,
+            "distance_meters": 2649,
+            "service": 1
+          },
+          {
+            "mode": "WALK",
+            "route_name": null,
+            "route_id": null,
+            "start_name": "올림픽베어스타운아파트앞",
+            "end_name": "도착지",
+            "section_time_seconds": 316,
+            "distance_meters": 382,
+            "service": null
+          }
+        ],
+        "meets_target": true,
+        "service_notes": [
+          "단일 TMAP 조회 기반 역산 추천입니다. 이전/다음 수단은 조회하지 않았습니다."
+        ]
+      }
+    ],
+    "verification_links": {
+      "naver_maps": "nmap://route/public?slat=37.4077220&slng=126.6255720&sname=%EC%86%A1%EB%8F%84%EB%8B%AC%EB%B9%9B%EC%B6%95%EC%A0%9C%EA%B3%B5%EC%9B%90%EC%97%AD&dlat=37.5162890&dlng=127.1173140&dname=%EC%98%AC%EB%A6%BC%ED%94%BD%ED%99%80&appname=open-gil",
+      "kakao_map": "http://m.map.kakao.com/scheme/route?sp=37.4077220,126.6255720&ep=37.5162890,127.1173140&by=publictransit"
+    },
+    "search_strategy": "quota_safe_target_arrival_single_lookup",
+    "route_api_calls_used": 1,
+    "planning_note": "하루 호출 제한을 고려해 TMAP 경로 조회 1회로 총 소요시간을 받아 목표 도착시각에서 역산했습니다. 이전/다음 수단 전수 탐색은 실행하지 않았습니다.",
+    "source": "TMAP Transit API",
+    "disclaimer": "TMAP API 응답 기준입니다. 현장 지연, 운행 중단, 행사장 혼잡은 실제와 다를 수 있습니다."
+  }
+}

@@ -1,4 +1,6 @@
+import json
 from datetime import datetime
+from pathlib import Path
 
 from open_gil.formatters import format_plan_text
 from open_gil.models import PlanResult, ResolvedPlace, RouteCandidate, RouteLeg, VerificationLinks
@@ -60,6 +62,22 @@ def test_format_plan_text_names_same_stop_transfer() -> None:
 
     assert "같은 정류장 환승: 선릉역에서 버스 광역:M6450 하차 후 버스 간선:360 탑승" in text
     assert "도보: 선릉역 -> 선릉역" not in text
-    assert "도보: 출발지 -> 송도달빛축제공원역" in text
+    assert "도보: 입력 위치 -> 송도달빛축제공원역" in text
     assert "버스 광역:M6450: 송도달빛축제공원역 승차 -> 선릉역 하차" in text
     assert "버스 간선:360: 선릉역 승차 -> 올림픽홀 하차" in text
+
+
+def test_format_real_songdo_olympic_fixture() -> None:
+    fixture = Path(__file__).parent / "fixtures" / "open_gil_songdo_olympic_success.json"
+    payload = json.loads(fixture.read_text(encoding="utf-8"))
+    result = PlanResult.model_validate(payload["data"])
+
+    text = format_plan_text(result)
+
+    assert "추천: 2026-06-08 11:04 출발 -> 2026-06-08 12:45 도착" in text
+    assert "경로: 도보 -> 버스 광역:M6450 -> 같은 정류장 환승 -> 버스 간선:360" in text
+    assert "1. 도보: 입력 위치 -> 송도달빛축제공원역" in text
+    assert "2. 버스 광역:M6450: 송도달빛축제공원역 승차 -> 선릉역 하차" in text
+    assert "3. 같은 정류장 환승: 선릉역에서 버스 광역:M6450 하차 후 버스 간선:360 탑승" in text
+    assert "5. 같은 정류장 환승: 잠실트리지움아파트앞에서 버스 간선:360 하차 후 버스 지선:3323 탑승" in text
+    assert "7. 도보: 올림픽베어스타운아파트앞 -> 올림픽홀" in text

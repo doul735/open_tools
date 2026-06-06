@@ -41,8 +41,15 @@ def format_plan_text(result: PlanResult) -> str:
         recommended = result.candidates[0]
     if recommended:
         lines.append("추천 경로 상세")
-        for line in _format_legs(recommended.legs, origin_name=result.origin.name, destination_name=result.destination.name):
-            lines.append(f"- {line}")
+        for index, line in enumerate(
+            _format_legs(
+                recommended.legs,
+                origin_name=result.origin.name,
+                destination_name=result.destination.name,
+            ),
+            start=1,
+        ):
+            lines.append(f"{index}. {line}")
         if recommended.service_notes:
             for note in recommended.service_notes:
                 lines.append(f"- 운행 참고: {note}")
@@ -85,7 +92,7 @@ def _format_candidate(candidate: RouteCandidate) -> list[str]:
         parts.append(f"요금 {candidate.total_fare:,}원")
     if target_note:
         parts.append(target_note)
-    return [" / ".join(parts), f"  경로: {candidate.route_summary}"]
+    return [" / ".join(parts), f"  경로: {_display_route_summary(candidate)}"]
 
 
 def _format_legs(legs: list[RouteLeg], *, origin_name: str, destination_name: str) -> list[str]:
@@ -105,6 +112,23 @@ def _format_legs(legs: list[RouteLeg], *, origin_name: str, destination_name: st
     return lines
 
 
+def _display_route_summary(candidate: RouteCandidate) -> str:
+    if not candidate.legs:
+        return candidate.route_summary
+
+    labels: list[str] = []
+    for index, leg in enumerate(candidate.legs):
+        previous_leg = candidate.legs[index - 1] if index > 0 else None
+        next_leg = candidate.legs[index + 1] if index + 1 < len(candidate.legs) else None
+        if _is_same_stop_transfer(leg, previous_leg, next_leg):
+            labels.append("같은 정류장 환승")
+        elif leg.mode == "WALK":
+            labels.append("도보")
+        else:
+            labels.append(_vehicle_label(leg))
+    return " -> ".join(labels)
+
+
 def _format_leg_with_context(
     leg: RouteLeg,
     previous_leg: RouteLeg | None,
@@ -114,7 +138,7 @@ def _format_leg_with_context(
     destination_name: str,
 ) -> str | None:
     if _is_zero_transfer_walk(leg) and previous_leg and next_leg:
-        if previous_leg.mode != "WALK" and next_leg.mode != "WALK":
+        if _is_same_stop_transfer(leg, previous_leg, next_leg):
             station = leg.start_name or leg.end_name or previous_leg.end_name or next_leg.start_name or "같은 정류장"
             return (
                 f"같은 정류장 환승: {station}에서 "
@@ -142,6 +166,20 @@ def _is_zero_transfer_walk(leg: RouteLeg) -> bool:
     )
 
 
+def _is_same_stop_transfer(
+    leg: RouteLeg,
+    previous_leg: RouteLeg | None,
+    next_leg: RouteLeg | None,
+) -> bool:
+    return (
+        _is_zero_transfer_walk(leg)
+        and previous_leg is not None
+        and next_leg is not None
+        and previous_leg.mode != "WALK"
+        and next_leg.mode != "WALK"
+    )
+
+
 def _vehicle_label(leg: RouteLeg) -> str:
     route = f" {leg.route_name}" if leg.route_name else ""
     return f"{_mode_ko(leg.mode)}{route}"
@@ -151,7 +189,7 @@ def _place_arrow(leg: RouteLeg, *, origin_name: str, destination_name: str) -> s
     start = _display_place(leg.start_name, origin_name=origin_name, destination_name=destination_name)
     end = _display_place(leg.end_name, origin_name=origin_name, destination_name=destination_name)
     if leg.start_name == "출발지" and leg.end_name and end == origin_name:
-        start = "출발지"
+        start = "입력 위치"
     return (
         f"{start} -> "
         f"{end}"
