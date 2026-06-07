@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.3
+
+- Clarified that TMAP API key is required while Kakao REST API key is optional.
+- Updated setup-status messaging so a missing Kakao key is not presented as a route-planning blocker.
+
 ## 0.1.2
 
 - Added `open-gil --version` so agents can verify the installed CLI version before following skill instructions.
