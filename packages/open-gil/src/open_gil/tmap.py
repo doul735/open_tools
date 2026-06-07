@@ -372,7 +372,7 @@ def _error_from_response(response: httpx.Response) -> OpenGilError:
         return OpenGilError(
             AUTH_INVALID,
             "TMAP API 키가 유효하지 않습니다.",
-            "TMAP_API_KEY 값 또는 open-gil config set-key로 저장한 키를 확인하세요.",
+            "키를 채팅창에 붙여넣지 마세요. TMAP_API_KEY 환경변수를 쓰고 있다면 새 값으로 바꾸거나 unset TMAP_API_KEY 후 open-gil setup을 실행하세요.",
             debug_detail=message,
             http_status=response.status_code,
         )

@@ -16,7 +16,7 @@ def test_version_option() -> None:
     result = runner.invoke(cli.app, ["--version"])
 
     assert result.exit_code == 0
-    assert "open-gil 0.1.3" in result.stdout
+    assert "open-gil 0.1.4" in result.stdout
 
 
 def test_plan_json_reports_missing_key(monkeypatch, tmp_path: Path) -> None:
@@ -118,7 +118,7 @@ def test_config_show_explains_missing_tmap_key(monkeypatch, tmp_path: Path) -> N
     assert "Kakao REST API 키는 선택 사항입니다." in result.stdout
     assert "TMAP API 키가 없어 아직 경로 계산을 시작할 수 없습니다." in result.stdout
     assert 'export TMAP_API_KEY="발급받은_appKey"' in result.stdout
-    assert "open-gil config set-key" in result.stdout
+    assert "open-gil setup" in result.stdout
 
 
 def test_config_show_json_does_not_expose_key_values(monkeypatch, tmp_path: Path) -> None:
@@ -135,3 +135,46 @@ def test_config_show_json_does_not_expose_key_values(monkeypatch, tmp_path: Path
     assert data["status"] == "ok"
     assert data["data"]["tmap_api_key"] == {"configured": True, "source": "environment"}
     assert data["data"]["kakao_rest_api_key"] == {"configured": True, "source": "environment"}
+
+
+def test_setup_prompts_for_tmap_key_without_echoing_value(monkeypatch, tmp_path: Path) -> None:
+    config = tmp_path / "config.json"
+    monkeypatch.delenv("TMAP_API_KEY", raising=False)
+    monkeypatch.delenv("KAKAO_REST_API_KEY", raising=False)
+    monkeypatch.setenv("OPEN_GIL_CONFIG_PATH", str(config))
+
+    result = runner.invoke(cli.app, ["setup"], input="new-secret-key\n")
+
+    assert result.exit_code == 0
+    assert "채팅창에 붙여넣지 마세요" in result.stdout
+    assert "TMAP API 키를 저장했습니다" in result.stdout
+    assert "new-secret-key" not in result.stdout
+    assert '"tmap_api_key": "new-secret-key"' in config.read_text(encoding="utf-8")
+
+
+def test_setup_does_not_expose_existing_env_key(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("TMAP_API_KEY", "existing-secret-key")
+    monkeypatch.setenv("OPEN_GIL_CONFIG_PATH", str(tmp_path / "missing-config.json"))
+
+    result = runner.invoke(cli.app, ["setup"])
+
+    assert result.exit_code == 0
+    assert "이미 경로 계산에 필요한 필수 키가 설정되어 있습니다." in result.stdout
+    assert "환경변수는 로컬 설정 파일보다 우선합니다." in result.stdout
+    assert "unset TMAP_API_KEY 후 open-gil setup" in result.stdout
+    assert "existing-secret-key" not in result.stdout
+
+
+def test_setup_repairs_invalid_config(monkeypatch, tmp_path: Path) -> None:
+    config = tmp_path / "config.json"
+    config.write_text("{not-json", encoding="utf-8")
+    monkeypatch.delenv("TMAP_API_KEY", raising=False)
+    monkeypatch.setenv("OPEN_GIL_CONFIG_PATH", str(config))
+
+    result = runner.invoke(cli.app, ["setup"], input="replacement-key\n")
+
+    assert result.exit_code == 0
+    assert "기존 설정 파일을 JSON으로 읽을 수 없어 새 설정 파일로 다시 저장합니다." in result.stdout
+    assert "replacement-key" not in result.stdout
+    data = json.loads(config.read_text(encoding="utf-8"))
+    assert data == {"tmap_api_key": "replacement-key"}

@@ -25,7 +25,7 @@ Assume a fresh agent environment does not have a TMAP key. Before attempting a r
 open-gil --version
 ```
 
-Use `open-gil` 0.1.3 or newer. If the command is missing or the version is older, install or upgrade before continuing.
+Use `open-gil` 0.1.4 or newer. If the command is missing or the version is older, install or upgrade before continuing.
 
 2. If it is not installed, prefer the PyPI package. If `pipx` already has `open-gil`, upgrade it:
 
@@ -39,7 +39,7 @@ pipx upgrade open-gil
 ```bash
 python3 -m venv /tmp/open-gil-venv
 /tmp/open-gil-venv/bin/python -m pip install --upgrade pip
-/tmp/open-gil-venv/bin/python -m pip install --upgrade "open-gil>=0.1.3"
+/tmp/open-gil-venv/bin/python -m pip install --upgrade "open-gil>=0.1.4"
 /tmp/open-gil-venv/bin/open-gil --version
 ```
 
@@ -60,17 +60,16 @@ If the TMAP key is missing, stop before route planning and show this kind of Kor
 open-gil은 실제 대중교통 경로와 시간을 TMAP Transit API로 계산합니다.
 현재 이 환경에는 TMAP API 키가 설정되어 있지 않아서 아직 경로 계산을 실행할 수 없습니다.
 
-아래 둘 중 하나로 키를 설정한 뒤 다시 요청해 주세요.
+API 키를 Claude/Codex/ChatGPT 채팅창에 붙여넣지 마세요.
+아래 명령을 사용자의 터미널에서 직접 실행하고, 숨김 입력 프롬프트에 키를 입력하세요.
 
-1. 환경변수로 설정:
-   export TMAP_API_KEY="발급받은_appKey"
-
-2. 로컬 설정 파일에 저장:
-   open-gil config set-key
+open-gil setup
 
 Kakao REST API 키는 선택 사항입니다. 없어도 TMAP 키가 있으면 경로 계산을 시도할 수 있습니다.
 키 값은 화면에 표시하지 않습니다.
 ```
+
+Never ask the user to paste an API key into chat. Never include the key in a shell command such as `open-gil config set-key <KEY>` or `export TMAP_API_KEY=<KEY>` in an agent-generated command. If the user already pasted a real key into chat, do not use it; tell them to revoke/regenerate that key and run `open-gil setup` in their terminal.
 
 Do not phrase the first-run blocker as only "Do you have a key?" Explain why the key is required, what is missing, and the exact next command.
 
@@ -173,8 +172,8 @@ For `event_at` and `arrive_by`, the MVP uses a quota-safe single TMAP route look
 
 ## Error Handling
 
-- `OPEN_GIL_AUTH_MISSING`: explain that `TMAP_API_KEY` or `open-gil config set-key` is needed.
-- `OPEN_GIL_AUTH_INVALID`: tell the user the TMAP key is invalid or the authentication format is wrong; do not say only "400" or "401".
+- `OPEN_GIL_AUTH_MISSING`: explain that the required TMAP key is missing, then tell the user to run `open-gil setup` in their own terminal. Do not ask them to paste the key into chat.
+- `OPEN_GIL_AUTH_INVALID`: tell the user the TMAP key is invalid or the authentication format is wrong; do not say only "400" or "401". If `TMAP_API_KEY` is set, explain that it overrides the local config and must be changed or unset before `open-gil setup` can help.
 - `OPEN_GIL_AUTH_FORBIDDEN`: if this happens during place-name lookup and Kakao fallback is not configured, ask for `KAKAO_REST_API_KEY` or coordinates. If it happens during coordinate-based Transit lookup, tell the user route calculation is blocked and ask them to check API product permission, paid plan status, and domain/IP restrictions.
 - `OPEN_GIL_PLACE_AMBIGUOUS`: ask the user to pick one candidate; do not choose automatically.
 - `OPEN_GIL_PLACE_NOT_FOUND`: ask for a more specific place or coordinates.

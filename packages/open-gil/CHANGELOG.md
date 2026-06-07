@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.4
+
+- Added `open-gil setup` for first-time users to enter the required TMAP key through a terminal hidden prompt.
+- Added stronger guidance that API keys should not be pasted into agent chat windows.
+- Updated missing-key remediation to prefer `open-gil setup` over passing keys as command arguments.
+
 ## 0.1.3
 
 - Clarified that TMAP API key is required while Kakao REST API key is optional.

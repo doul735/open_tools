@@ -20,12 +20,12 @@ def config_path() -> Path:
     return Path.home() / ".config" / "open-gil" / "config.json"
 
 
-def save_api_key(api_key: str, *, path: Path | None = None) -> Path:
-    return _save_config_key("tmap_api_key", api_key, path=path)
+def save_api_key(api_key: str, *, path: Path | None = None, reset_invalid: bool = False) -> Path:
+    return _save_config_key("tmap_api_key", api_key, path=path, reset_invalid=reset_invalid)
 
 
-def save_kakao_rest_api_key(api_key: str, *, path: Path | None = None) -> Path:
-    return _save_config_key("kakao_rest_api_key", api_key, path=path)
+def save_kakao_rest_api_key(api_key: str, *, path: Path | None = None, reset_invalid: bool = False) -> Path:
+    return _save_config_key("kakao_rest_api_key", api_key, path=path, reset_invalid=reset_invalid)
 
 
 def config_status(*, path: Path | None = None) -> dict:
@@ -55,14 +55,20 @@ def config_status(*, path: Path | None = None) -> dict:
     }
 
 
-def _save_config_key(key_name: str, api_key: str, *, path: Path | None = None) -> Path:
+def _save_config_key(key_name: str, api_key: str, *, path: Path | None = None, reset_invalid: bool = False) -> Path:
     cleaned = api_key.strip()
     if not cleaned:
         raise OpenGilError(INPUT_INVALID, "빈 API 키는 저장할 수 없습니다.")
 
     target = path or config_path()
     target.parent.mkdir(parents=True, exist_ok=True)
-    data = _read_config(target) if target.exists() else {}
+    data = {}
+    if target.exists():
+        try:
+            data = _read_config(target)
+        except OpenGilError:
+            if not reset_invalid:
+                raise
     data[key_name] = cleaned
     target.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     _chmod_600(target)
@@ -84,7 +90,7 @@ def load_api_key(*, path: Path | None = None) -> str:
     raise OpenGilError(
         AUTH_MISSING,
         "TMAP API 키가 설정되어 있지 않습니다.",
-        "TMAP_API_KEY 환경변수를 설정하거나 open-gil config set-key 명령으로 저장하세요.",
+        "키를 채팅창에 붙여넣지 말고, 터미널에서 open-gil setup을 실행해 숨김 입력으로 저장하세요.",
     )
 
 
@@ -123,7 +129,7 @@ def _read_config(path: Path) -> dict:
         raise OpenGilError(
             INPUT_INVALID,
             f"설정 파일을 JSON으로 읽을 수 없습니다: {path}",
-            "open-gil config set-key 명령으로 API 키를 다시 저장하세요.",
+            "open-gil setup 명령으로 API 키를 다시 저장하세요.",
             debug_detail=str(exc),
         ) from exc
     return data if isinstance(data, dict) else {}
