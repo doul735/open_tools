@@ -100,7 +100,8 @@ def setup() -> None:
         typer.echo("open-gil 초기 설정")
         typer.echo("TMAP API 키는 실제 대중교통 경로와 시간을 계산하기 위한 필수 키입니다.")
         typer.echo("API 키를 Claude/Codex/ChatGPT 채팅창에 붙여넣지 마세요.")
-        typer.echo("이 명령의 터미널 숨김 입력 프롬프트에 직접 입력하세요.")
+        typer.echo("아래에서 API 키를 입력하라는 화면이 나오면 직접 입력하세요.")
+        typer.echo("입력하는 동안 글자가 화면에 보이지 않는 것이 정상입니다.")
         typer.echo("")
         if reset_invalid:
             typer.echo("기존 설정 파일을 JSON으로 읽을 수 없어 새 설정 파일로 다시 저장합니다.")
@@ -117,7 +118,8 @@ def setup() -> None:
             return
 
         typer.echo("TMAP API 키(필수): 없음")
-        typer.echo("키를 발급한 뒤 아래 숨김 입력 프롬프트에 직접 입력하세요.")
+        typer.echo("키를 발급한 뒤 아래 입력 화면에 직접 입력하세요.")
+        typer.echo("입력하는 동안 글자가 화면에 보이지 않는 것이 정상입니다.")
         typer.echo("이미 키를 채팅창에 붙여넣었다면, 해당 키는 폐기하고 새 키를 발급하는 편이 안전합니다.")
         key = typer.prompt("TMAP API 키를 터미널에 직접 입력하세요", hide_input=True)
         path = save_api_key(key, reset_invalid=reset_invalid)
@@ -315,7 +317,7 @@ def _format_config_status(status: dict[str, Any]) -> str:
                 "TMAP API 키가 없어 아직 경로 계산을 시작할 수 없습니다.",
                 "먼저 TMAP appKey를 발급한 뒤 아래 둘 중 하나로 설정하세요.",
                 '1. 환경변수: export TMAP_API_KEY="발급받은_appKey"',
-                "2. 터미널 숨김 입력: open-gil setup",
+                "2. open-gil setup 실행 후, 키 입력 화면에서 직접 입력",
                 "",
                 "키 값은 화면에 표시하지 않으며, 로컬 설정 파일은 POSIX 환경에서 0600 권한으로 저장됩니다.",
             ]

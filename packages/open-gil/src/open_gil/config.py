@@ -90,7 +90,7 @@ def load_api_key(*, path: Path | None = None) -> str:
     raise OpenGilError(
         AUTH_MISSING,
         "TMAP API 키가 설정되어 있지 않습니다.",
-        "키를 채팅창에 붙여넣지 말고, 터미널에서 open-gil setup을 실행해 숨김 입력으로 저장하세요.",
+        "키를 채팅창에 붙여넣지 말고, 터미널에서 open-gil setup을 실행하세요. 입력하는 동안 글자가 화면에 보이지 않는 것이 정상입니다.",
     )
 
 
