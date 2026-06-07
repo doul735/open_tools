@@ -1,3 +1,4 @@
+import json
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -95,3 +96,33 @@ def test_config_set_kakao_key_writes_config(monkeypatch, tmp_path: Path) -> None
     assert result.exit_code == 0
     assert "Kakao REST API 키를 저장했습니다" in result.stdout
     assert '"kakao_rest_api_key": "kakao-key"' in config.read_text(encoding="utf-8")
+
+
+def test_config_show_explains_missing_tmap_key(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.delenv("TMAP_API_KEY", raising=False)
+    monkeypatch.delenv("KAKAO_REST_API_KEY", raising=False)
+    monkeypatch.setenv("OPEN_GIL_CONFIG_PATH", str(tmp_path / "missing-config.json"))
+
+    result = runner.invoke(cli.app, ["config", "show"])
+
+    assert result.exit_code == 0
+    assert "TMAP API 키: 없음" in result.stdout
+    assert "TMAP API 키가 없어 아직 경로 계산을 시작할 수 없습니다." in result.stdout
+    assert 'export TMAP_API_KEY="발급받은_appKey"' in result.stdout
+    assert "open-gil config set-key" in result.stdout
+
+
+def test_config_show_json_does_not_expose_key_values(monkeypatch, tmp_path: Path) -> None:
+    monkeypatch.setenv("TMAP_API_KEY", "secret-tmap-value")
+    monkeypatch.setenv("KAKAO_REST_API_KEY", "secret-kakao-value")
+    monkeypatch.setenv("OPEN_GIL_CONFIG_PATH", str(tmp_path / "missing-config.json"))
+
+    result = runner.invoke(cli.app, ["config", "show", "--json"])
+
+    assert result.exit_code == 0
+    assert "secret-tmap-value" not in result.stdout
+    assert "secret-kakao-value" not in result.stdout
+    data = json.loads(result.stdout)
+    assert data["status"] == "ok"
+    assert data["data"]["tmap_api_key"] == {"configured": True, "source": "environment"}
+    assert data["data"]["kakao_rest_api_key"] == {"configured": True, "source": "environment"}

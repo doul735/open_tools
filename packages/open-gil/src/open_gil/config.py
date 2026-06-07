@@ -28,6 +28,33 @@ def save_kakao_rest_api_key(api_key: str, *, path: Path | None = None) -> Path:
     return _save_config_key("kakao_rest_api_key", api_key, path=path)
 
 
+def config_status(*, path: Path | None = None) -> dict:
+    target = path or config_path()
+    data = _read_config(target) if target.exists() else {}
+    mode = None
+    if target.exists() and os.name == "posix":
+        mode = oct(stat.S_IMODE(target.stat().st_mode))
+
+    tmap_env = _has_env(API_KEY_ENV)
+    kakao_env = _has_env(KAKAO_REST_API_KEY_ENV)
+    tmap_config = bool(str(data.get("tmap_api_key", "")).strip())
+    kakao_config = bool(str(data.get("kakao_rest_api_key", "")).strip())
+
+    return {
+        "config_path": str(target),
+        "config_exists": target.exists(),
+        "config_mode": mode,
+        "tmap_api_key": {
+            "configured": tmap_env or tmap_config,
+            "source": _source(tmap_env, tmap_config),
+        },
+        "kakao_rest_api_key": {
+            "configured": kakao_env or kakao_config,
+            "source": _source(kakao_env, kakao_config),
+        },
+    }
+
+
 def _save_config_key(key_name: str, api_key: str, *, path: Path | None = None) -> Path:
     cleaned = api_key.strip()
     if not cleaned:
@@ -72,6 +99,19 @@ def load_kakao_rest_api_key(*, path: Path | None = None) -> str | None:
         key = str(data.get("kakao_rest_api_key", "")).strip()
         if key:
             return key
+    return None
+
+
+def _has_env(name: str) -> bool:
+    value = os.environ.get(name)
+    return bool(value and value.strip())
+
+
+def _source(env_configured: bool, file_configured: bool) -> str | None:
+    if env_configured:
+        return "environment"
+    if file_configured:
+        return "config_file"
     return None
 
 

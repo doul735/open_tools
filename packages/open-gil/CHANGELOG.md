@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.1
+
+- Added `open-gil config show` and `open-gil config status` to report key setup status without exposing key values.
+- Updated agent skill first-run instructions so fresh environments explain the missing TMAP key before route planning.
+- Made PyPI/pipx installation the preferred agent setup path and documented temporary venv fallback only for source testing.
+
 ## 0.1.0
 
 - Initial MVP CLI package.

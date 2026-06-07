@@ -35,6 +35,10 @@ pipx install "git+https://github.com/doul735/open_tools.git#subdirectory=package
 Configure your TMAP key:
 
 ```bash
+open-gil config show
+```
+
+```bash
 open-gil config set-key
 ```
 
@@ -193,6 +197,12 @@ export TMAP_API_KEY="발급받은_appKey"
 
 ```bash
 open-gil config set-key
+```
+
+키 설정 상태는 값 노출 없이 확인할 수 있습니다.
+
+```bash
+open-gil config show
 ```
 
 Kakao Local fallback은 선택이지만 자연어 장소명 품질을 크게 올립니다. Kakao Developers에서 REST API 키를 발급하고 Local API 사용을 확인한 뒤 설정합니다.
