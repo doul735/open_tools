@@ -31,7 +31,7 @@ Natural-language status:
 6. If the CLI returns `OPEN_GIL_AUTH_FORBIDDEN` during place-name lookup, do not say the whole route planner failed. First ensure `KAKAO_REST_API_KEY` is configured. If Kakao fallback is unavailable or ambiguous, follow the coordinate fallback workflow below, then rerun with `{lat, lon, label}`.
 7. Summarize the selected result in Korean. Always include boarding and alighting points from `candidates[].legs[]` for every bus/subway/train leg.
 8. If `planning_note` is present, mention it. Do not claim that previous/next departures were exhaustively searched.
-9. Include the NAVER/Kakao verification links.
+9. End every user-facing route answer with NAVER Maps and KakaoMap route links from `verification_links`.
 
 ## Coordinate Fallback
 
@@ -132,6 +132,7 @@ For `event_at` and `arrive_by`, the MVP uses a quota-safe single TMAP route look
 - If a WALK leg has the same start/end name with 0m or 0 seconds between two transit legs, summarize it as a same-stop transfer using the previous alighting route and next boarding route.
 - Mention that field delays, disruptions, and event congestion can differ.
 - NAVER Maps and KakaoMap links are verification/open links only, not calculation sources.
+- Always include a final Korean section named `확인 링크` with both `네이버지도` and `카카오맵`. Do not omit it from concise answers.
 - Never send or store the user's raw natural-language prompt through open-gil.
 - Never log, quote, or expose the TMAP API key.
 - Do not say simply "it works" or "it does not work." Distinguish: place-name lookup, coordinate resolution, and TMAP Transit route calculation.
