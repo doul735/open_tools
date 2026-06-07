@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "open-gil"
-version = "0.1.4"
+version = "0.1.5"
 description = "API-backed public transit departure planner for Seoul, Gyeonggi, and Incheon."
 readme = "README.md"
 requires-python = ">=3.10"

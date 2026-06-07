@@ -1,3 +1,3 @@
 """open-gil public transit planner."""
 
-__version__ = "0.1.4"
+__version__ = "0.1.5"

@@ -25,7 +25,7 @@ Assume a fresh agent environment does not have a TMAP key. Before attempting a r
 open-gil --version
 ```
 
-Use `open-gil` 0.1.4 or newer. If the command is missing or the version is older, install or upgrade before continuing.
+Use `open-gil` 0.1.5 or newer. If the command is missing or the version is older, install or upgrade before continuing.
 
 2. If it is not installed, prefer the PyPI package. If `pipx` already has `open-gil`, upgrade it:
 
@@ -39,7 +39,7 @@ pipx upgrade open-gil
 ```bash
 python3 -m venv /tmp/open-gil-venv
 /tmp/open-gil-venv/bin/python -m pip install --upgrade pip
-/tmp/open-gil-venv/bin/python -m pip install --upgrade "open-gil>=0.1.4"
+/tmp/open-gil-venv/bin/python -m pip install --upgrade "open-gil>=0.1.5"
 /tmp/open-gil-venv/bin/open-gil --version
 ```
 
