@@ -40,8 +40,8 @@ pipx install open-gil
 Developers can work from the monorepo.
 
 ```bash
-git clone <repository-url>
-cd open_gil
+git clone https://github.com/doul735/open_tools.git
+cd open_tools
 python -m venv .venv
 . .venv/bin/activate
 python -m pip install -e "./packages/open-gil[dev]"

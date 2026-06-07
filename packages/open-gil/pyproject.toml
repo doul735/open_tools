@@ -37,6 +37,12 @@ dev = ["pytest>=8", "build>=1.2"]
 [project.scripts]
 open-gil = "open_gil.cli:app"
 
+[project.urls]
+Homepage = "https://github.com/doul735/open_tools"
+Repository = "https://github.com/doul735/open_tools"
+Issues = "https://github.com/doul735/open_tools/issues"
+Changelog = "https://github.com/doul735/open_tools/blob/main/packages/open-gil/CHANGELOG.md"
+
 [tool.setuptools.packages.find]
 where = ["src"]
 
