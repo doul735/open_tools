@@ -5,7 +5,14 @@ description: Use the local open-gil CLI to answer Korean public-transit departur
 
 # open-gil
 
-Use `open-gil` for Seoul, Gyeonggi, and Incheon public-transit planning. The CLI is the source of truth; do not invent departure times, transfer stations, durations, fares, or route details.
+Use `open-gil` for Seoul, Gyeonggi, and Incheon public-transit planning. TMAP Transit API is the source of truth for route calculation; do not invent departure times, transfer stations, durations, fares, or route details.
+
+Natural-language status:
+
+- It works when origin/destination coordinates can be confirmed and TMAP Transit route lookup succeeds.
+- It may not work as a pure place-name lookup when the TMAP POI API is forbidden or unavailable.
+- If TMAP POI fails but coordinates can be confirmed from the user or public sources, rerun with coordinates and explain that only coordinate resolution used the fallback.
+- It does not work when TMAP Transit itself is forbidden, quota-exceeded, or cannot find a route.
 
 ## Workflow
 
@@ -14,14 +21,43 @@ Use `open-gil` for Seoul, Gyeonggi, and Incheon public-transit planning. The CLI
    - destination
    - one time intent: `depart_at`, `event_at`, or `arrive_by`
 2. Confirm the interpretation before lookup.
-   - If the user gave a date-less natural-language time, ask for the exact date.
+   - If the user says a relative date like "today" or "tomorrow", resolve it using the current local date and state the exact date in the answer.
+   - If the user gives only a time with no date or relative-date word, ask for the exact date.
    - If the intent is inferred, ask whether it means fixed departure, event/start time, or arrival deadline.
 3. Call the CLI with JSON and `--json`.
 4. Read only the JSON envelope. Do not scrape human text.
 5. If the CLI returns `OPEN_GIL_PLACE_AMBIGUOUS`, show the candidates and ask the user to choose. Re-run with coordinates and labels from the chosen candidate.
-6. Summarize the selected result in Korean. Always include boarding and alighting points from `candidates[].legs[]` for every bus/subway/train leg.
-7. If `planning_note` is present, mention it. Do not claim that previous/next departures were exhaustively searched.
-8. Include the NAVER/Kakao verification links.
+6. If the CLI returns `OPEN_GIL_AUTH_FORBIDDEN` during place-name lookup, do not say the whole route planner failed. Follow the coordinate fallback workflow below, then rerun with `{lat, lon, label}`.
+7. Summarize the selected result in Korean. Always include boarding and alighting points from `candidates[].legs[]` for every bus/subway/train leg.
+8. If `planning_note` is present, mention it. Do not claim that previous/next departures were exhaustively searched.
+9. Include the NAVER/Kakao verification links.
+
+## Coordinate Fallback
+
+Use this only when place-name lookup fails or when the user already supplied coordinates. The fallback is for resolving input coordinates, not for calculating the route.
+
+1. Use public/authoritative sources only to confirm place identity and coordinates:
+   - official venue/building pages, road-address pages, public map/geocoder results, or user-supplied coordinates
+2. If the place is ambiguous, residential/private, or has multiple plausible candidates, ask the user to choose or provide coordinates before calling TMAP Transit.
+3. If there is exactly one high-confidence public candidate and the user has asked you to proceed, you may run the coordinate-based CLI call and clearly disclose the coordinate fallback in the final answer.
+4. Never use public web results for departure time, route, fare, transfer, stop, or delay data.
+5. Rerun the CLI with coordinates:
+
+```bash
+cat <<'JSON' | open-gil plan --json
+{
+  "origin": {"lat": 37.4105748, "lon": 126.6266089, "label": "힐스테이트 송도 더테라스"},
+  "destination": {"lat": 37.5727687, "lon": 126.9707238, "label": "내수동교회"},
+  "event_at": "2026-06-07 11:00"
+}
+JSON
+```
+
+Required disclosure when fallback was used:
+
+```text
+TMAP POI 권한 오류로 장소명 자동 좌표화가 실패했습니다. 좌표는 공개/사용자 제공 자료로 확인했고, 출발시각/경로/요금/환승 계산은 확정 좌표로 호출한 TMAP Transit API 결과만 사용했습니다.
+```
 
 ## Commands
 
@@ -63,7 +99,7 @@ For `event_at` and `arrive_by`, the MVP uses a quota-safe single TMAP route look
 
 - `OPEN_GIL_AUTH_MISSING`: explain that `TMAP_API_KEY` or `open-gil config set-key` is needed.
 - `OPEN_GIL_AUTH_INVALID`: tell the user the TMAP key is invalid or the authentication format is wrong; do not say only "400" or "401".
-- `OPEN_GIL_AUTH_FORBIDDEN`: tell the user the key was accepted enough to reach TMAP but this API call is forbidden; ask them to check API product permission, paid plan status, and domain/IP restrictions.
+- `OPEN_GIL_AUTH_FORBIDDEN`: if this happens during place-name lookup, use coordinate fallback. If it happens during coordinate-based Transit lookup, tell the user route calculation is blocked and ask them to check API product permission, paid plan status, and domain/IP restrictions.
 - `OPEN_GIL_PLACE_AMBIGUOUS`: ask the user to pick one candidate; do not choose automatically.
 - `OPEN_GIL_PLACE_NOT_FOUND`: ask for a more specific place or coordinates.
 - `OPEN_GIL_ROUTE_NOT_FOUND`: explain that TMAP did not return a qualifying route for the inputs.
@@ -79,3 +115,5 @@ For `event_at` and `arrive_by`, the MVP uses a quota-safe single TMAP route look
 - Mention that field delays, disruptions, and event congestion can differ.
 - NAVER Maps and KakaoMap links are verification/open links only, not calculation sources.
 - Never send or store the user's raw natural-language prompt through open-gil.
+- Never log, quote, or expose the TMAP API key.
+- Do not say simply "it works" or "it does not work." Distinguish: place-name lookup, coordinate resolution, and TMAP Transit route calculation.
