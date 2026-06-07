@@ -104,6 +104,14 @@ Natural-language flows must confirm the inferred intent before running the CLI.
 
 For `event_at` and `arrive_by`, the MVP uses a quota-safe single TMAP route lookup and calculates the recommended departure from the returned total duration. Do not describe it as an exhaustive latest-departure search.
 
+## Route Call Budget
+
+- For one natural-language user request, call TMAP Transit route calculation at most once.
+- Resolve place candidates first using TMAP POI, Kakao Local, user choice, or user-provided coordinates. Do not call TMAP Transit until both origin and destination are resolved.
+- If place resolution is ambiguous, ask the user to choose instead of spending a route call.
+- If the one TMAP Transit call fails, report the exact error. Do not retry unless the user explicitly asks.
+- Place lookup calls are separate from the TMAP Transit route-call budget, but keep them minimal.
+
 ## Error Handling
 
 - `OPEN_GIL_AUTH_MISSING`: explain that `TMAP_API_KEY` or `open-gil config set-key` is needed.
