@@ -12,6 +12,13 @@ from open_gil.timeutils import DEFAULT_TZ
 runner = CliRunner()
 
 
+def test_version_option() -> None:
+    result = runner.invoke(cli.app, ["--version"])
+
+    assert result.exit_code == 0
+    assert "open-gil 0.1.2" in result.stdout
+
+
 def test_plan_json_reports_missing_key(monkeypatch, tmp_path: Path) -> None:
     monkeypatch.delenv("TMAP_API_KEY", raising=False)
     monkeypatch.setenv("OPEN_GIL_CONFIG_PATH", str(tmp_path / "missing-config.json"))

@@ -7,6 +7,7 @@ from typing import Any
 
 import typer
 
+from . import __version__
 from .config import (
     config_path,
     config_status,
@@ -23,9 +24,22 @@ from .planner import Planner, plan_request_from_mapping
 from .tmap import TMapClient
 
 
-app = typer.Typer(help="TMAP API 기반 대중교통 출발시간 추천 CLI")
+app = typer.Typer(help="TMAP API 기반 대중교통 출발시간 추천 CLI", invoke_without_command=True)
 config_app = typer.Typer(help="설정 관리")
 app.add_typer(config_app, name="config")
+
+
+@app.callback(invoke_without_command=True)
+def main(
+    ctx: typer.Context,
+    version: bool = typer.Option(False, "--version", help="open-gil 버전 출력"),
+) -> None:
+    if version:
+        typer.echo(f"open-gil {__version__}")
+        raise typer.Exit()
+    if ctx.invoked_subcommand is None:
+        typer.echo(ctx.get_help())
+        raise typer.Exit()
 
 
 @config_app.command("set-key")

@@ -19,24 +19,28 @@ Natural-language status:
 
 Assume a fresh agent environment does not have a TMAP key. Before attempting a route lookup:
 
-1. Check whether `open-gil` is available:
+1. Check whether `open-gil` is available and verify the installed version:
 
 ```bash
-open-gil --help
+open-gil --version
 ```
 
-2. If it is not installed, prefer the PyPI package:
+Use `open-gil` 0.1.2 or newer. If the command is missing or the version is older, install or upgrade before continuing.
+
+2. If it is not installed, prefer the PyPI package. If `pipx` already has `open-gil`, upgrade it:
 
 ```bash
 pipx install open-gil
+pipx upgrade open-gil
 ```
 
-3. If `pipx` is not installed, do not struggle through global `pip install` errors. Tell the user that `pipx` is recommended, or use a temporary venv only when the user asked you to test from source:
+3. If `pipx` is not installed, do not struggle through global `pip install` errors. Tell the user that `pipx` is recommended, or use a temporary venv only when the user asked you to test from source. Existing `/tmp/open-gil-venv` environments may contain stale versions, so always run `--upgrade` with a minimum version:
 
 ```bash
 python3 -m venv /tmp/open-gil-venv
-/tmp/open-gil-venv/bin/python -m pip install open-gil
-/tmp/open-gil-venv/bin/open-gil --help
+/tmp/open-gil-venv/bin/python -m pip install --upgrade pip
+/tmp/open-gil-venv/bin/python -m pip install --upgrade "open-gil>=0.1.2"
+/tmp/open-gil-venv/bin/open-gil --version
 ```
 
 4. Check key status without exposing secret values:

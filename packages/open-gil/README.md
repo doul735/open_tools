@@ -24,6 +24,7 @@ Install from PyPI:
 
 ```bash
 pipx install open-gil
+open-gil --version
 ```
 
 Or install directly from the repository:
