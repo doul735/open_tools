@@ -4,12 +4,30 @@ Open-source agent tools that keep LLMs useful without letting them invent operat
 
 This repository is the home for the `open_*` series. Stars, issues, discussions, and project-level documentation live here; each tool is still packaged and released independently so users can install only what they need.
 
+## What This Is
+
+`open_*` tools are small CLIs and agent skills for jobs where an LLM should help parse intent, but should not invent the final answer. Each package keeps a specific external data source as the source of truth and makes that boundary visible in the output.
+
+The first package is `open-gil`, a public-transit departure planner for Seoul, Gyeonggi, and Incheon. It lets an agent turn a Korean natural-language route question into structured input, then uses APIs for place lookup and route calculation.
+
 ## Packages
 
 | Package | CLI | Status | Purpose |
 | --- | --- | --- | --- |
 | [`open-gil`](packages/open-gil) | `open-gil` | MVP | TMAP-backed public-transit departure planning for Seoul, Gyeonggi, and Incheon. |
 | `open-review` | `open-review` | Planned | Review workflows for code, docs, and release checks. |
+
+## Current State
+
+`open-gil` is the current MVP.
+
+- Route calculation source of truth: TMAP Transit API
+- Coordinate fallback: Kakao Local API, optional and used only for coordinate lookup
+- Agent surfaces: Codex repo skill in `.agents/skills/open-gil`, package skill in `packages/open-gil/skills/open-gil`
+- Output contract: stable JSON envelope plus human-readable Korean route summaries
+- Hard guardrail: one TMAP Transit route calculation per natural-language request
+
+For the design history, tradeoffs, and next steps, see [Open Gil Development Story](docs/open-gil-development-story.md).
 
 ## Install
 
@@ -51,6 +69,7 @@ The root `.agents/skills` directory is for Codex repo-scoped skills. Package-loc
 - Release each tool as its own package and CLI.
 - Keep provider roles explicit. For example, `open-gil` uses Kakao Local only for coordinate fallback and TMAP Transit as the route-calculation source of truth.
 - Do not commit API keys, raw user prompts, private location logs, or live route-search traces.
+- Prefer honest fallback behavior over pretending two map providers will produce the same route.
 
 ## Current Commands
 
