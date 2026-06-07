@@ -132,7 +132,9 @@ For `event_at` and `arrive_by`, the MVP uses a quota-safe single TMAP route look
 - If a WALK leg has the same start/end name with 0m or 0 seconds between two transit legs, summarize it as a same-stop transfer using the previous alighting route and next boarding route.
 - Mention that field delays, disruptions, and event congestion can differ.
 - NAVER Maps and KakaoMap links are verification/open links only, not calculation sources.
+- Do not describe NAVER/Kakao links as exact links to the TMAP-selected route. They open route search with the same origin/destination coordinates, and each map app may recalculate a different route.
 - Always include a final Korean section named `확인 링크` with both `네이버지도` and `카카오맵`. Do not omit it from concise answers.
+- In the `확인 링크` section, include this warning: `지도앱은 같은 출발/도착 좌표로 다시 길찾기하므로 위 TMAP 경로와 다를 수 있습니다.`
 - Never send or store the user's raw natural-language prompt through open-gil.
 - Never log, quote, or expose the TMAP API key.
 - Do not say simply "it works" or "it does not work." Distinguish: place-name lookup, coordinate resolution, and TMAP Transit route calculation.

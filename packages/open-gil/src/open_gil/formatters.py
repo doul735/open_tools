@@ -65,6 +65,7 @@ def format_plan_text(result: PlanResult) -> str:
         lines.append("")
 
     lines.append("확인 링크")
+    lines.append("지도앱은 같은 출발/도착 좌표로 다시 길찾기하므로 위 TMAP 경로와 다를 수 있습니다.")
     lines.append(f"- 네이버지도: {result.verification_links.naver_maps}")
     lines.append(f"- 카카오맵: {result.verification_links.kakao_map}")
     lines.append("")
