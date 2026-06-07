@@ -207,8 +207,8 @@ open-gil config set-kakao-key
 ## Install from Source
 
 ```bash
-git clone <repository-url>
-cd open_gil
+git clone https://github.com/doul735/open_tools.git
+cd open_tools
 python -m venv .venv
 . .venv/bin/activate
 python -m pip install -e "./packages/open-gil[dev]"
@@ -244,7 +244,7 @@ python -m pip install -e "./packages/open-gil[dev]"
 python -m build packages/open-gil
 ```
 
-PyPI에 실제 배포하려면 GitHub 저장소를 만든 뒤 `pyproject.toml`에 실제 `project.urls`를 추가하고, PyPI에서 Trusted Publisher를 이 저장소와 `publish.yml` 워크플로에 연결하세요.
+PyPI에 실제 배포하려면 PyPI에서 Trusted Publisher를 이 저장소와 `publish.yml` 워크플로에 연결하세요.
 
 ## Limits
 
