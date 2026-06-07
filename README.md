@@ -1,4 +1,7 @@
-# open_*
+# open_tools
+
+[![CI](https://github.com/doul735/open_tools/actions/workflows/ci.yml/badge.svg)](https://github.com/doul735/open_tools/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 Open-source agent tools that keep LLMs useful without letting them invent operational facts.
 
@@ -26,15 +29,22 @@ The first package is `open-gil`, a public-transit departure planner for Seoul, G
 - Agent surfaces: Codex repo skill in `.agents/skills/open-gil`, package skill in `packages/open-gil/skills/open-gil`
 - Output contract: stable JSON envelope plus human-readable Korean route summaries
 - Hard guardrail: one TMAP Transit route calculation per natural-language request
+- Release status: source install works now; first PyPI release is waiting on PyPI Trusted Publisher setup
 
 For the design history, tradeoffs, and next steps, see [Open Gil Development Story](docs/open-gil-development-story.md).
 
 ## Install
 
-End users should install a specific tool rather than cloning the whole repository.
+After the first PyPI release:
 
 ```bash
 pipx install open-gil
+```
+
+Until then, install `open-gil` directly from this repository:
+
+```bash
+pipx install "git+https://github.com/doul735/open_tools.git#subdirectory=packages/open-gil"
 ```
 
 Developers can work from the monorepo.
