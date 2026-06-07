@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.2
+
+- Added `open-gil --version` so agents can verify the installed CLI version before following skill instructions.
+- Updated first-run skill instructions to upgrade reused temporary virtual environments instead of accidentally using stale `open-gil` versions.
+
 ## 0.1.1
 
 - Added `open-gil config show` and `open-gil config status` to report key setup status without exposing key values.
