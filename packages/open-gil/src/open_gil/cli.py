@@ -7,7 +7,14 @@ from typing import Any
 
 import typer
 
-from .config import config_path, load_api_key, load_kakao_rest_api_key, save_api_key, save_kakao_rest_api_key
+from .config import (
+    config_path,
+    config_status,
+    load_api_key,
+    load_kakao_rest_api_key,
+    save_api_key,
+    save_kakao_rest_api_key,
+)
 from .errors import INPUT_INVALID, OpenGilError, error_envelope
 from .formatters import error_json, format_plan_text, result_json
 from .kakao import KakaoLocalClient
@@ -35,6 +42,28 @@ def set_kakao_key(api_key: str | None = typer.Argument(None, help="Kakao REST AP
     key = api_key or typer.prompt("Kakao REST API 키", hide_input=True)
     path = save_kakao_rest_api_key(key)
     typer.echo(f"Kakao REST API 키를 저장했습니다: {path}")
+
+
+@config_app.command("show")
+def show_config(json_output: bool = typer.Option(False, "--json", help="JSON envelope 출력")) -> None:
+    """Show API key configuration status without exposing key values."""
+    try:
+        status = config_status()
+    except OpenGilError as exc:
+        _emit_error(exc, json_output=json_output, debug=False)
+        raise typer.Exit(1) from exc
+
+    if json_output:
+        typer.echo(json.dumps({"status": "ok", "data": status}, ensure_ascii=False, indent=2))
+        return
+
+    typer.echo(_format_config_status(status))
+
+
+@config_app.command("status")
+def status_config(json_output: bool = typer.Option(False, "--json", help="JSON envelope 출력")) -> None:
+    """Alias for config show."""
+    show_config(json_output=json_output)
 
 
 @app.command("plan")
@@ -189,6 +218,48 @@ def _interactive_place_selector(role: str, query: str, candidates: list[Resolved
         if 1 <= choice <= len(candidates):
             return candidates[choice - 1]
         typer.echo(f"1부터 {len(candidates)} 사이의 번호를 입력하세요.")
+
+
+def _format_config_status(status: dict[str, Any]) -> str:
+    tmap = status["tmap_api_key"]
+    kakao = status["kakao_rest_api_key"]
+    lines = [
+        "open-gil 설정 상태",
+        f"- 설정 파일: {status['config_path']}",
+        f"- 설정 파일 존재: {'예' if status['config_exists'] else '아니오'}",
+    ]
+    if status.get("config_mode"):
+        lines.append(f"- 설정 파일 권한: {status['config_mode']}")
+    lines.extend(
+        [
+            f"- TMAP API 키: {_configured_label(tmap)}",
+            f"- Kakao REST API 키: {_configured_label(kakao)} (선택, 장소명 fallback용)",
+        ]
+    )
+
+    if not tmap["configured"]:
+        lines.extend(
+            [
+                "",
+                "TMAP API 키가 없어 아직 경로 계산을 시작할 수 없습니다.",
+                "먼저 TMAP appKey를 발급한 뒤 아래 둘 중 하나로 설정하세요.",
+                '1. 환경변수: export TMAP_API_KEY="발급받은_appKey"',
+                "2. 로컬 저장: open-gil config set-key",
+                "",
+                "키 값은 화면에 표시하지 않으며, 로컬 설정 파일은 POSIX 환경에서 0600 권한으로 저장됩니다.",
+            ]
+        )
+    return "\n".join(lines)
+
+
+def _configured_label(value: dict[str, Any]) -> str:
+    if not value["configured"]:
+        return "없음"
+    if value["source"] == "environment":
+        return "설정됨 (환경변수)"
+    if value["source"] == "config_file":
+        return "설정됨 (로컬 설정 파일)"
+    return "설정됨"
 
 
 def _emit_error(error: OpenGilError, *, json_output: bool, debug: bool) -> None:

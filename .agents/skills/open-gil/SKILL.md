@@ -15,6 +15,55 @@ Natural-language status:
 - If API coordinate fallback fails but coordinates can be confirmed from the user or public sources, rerun with coordinates and explain that only coordinate resolution used the fallback.
 - It does not work when TMAP Transit itself is forbidden, quota-exceeded, or cannot find a route.
 
+## First-Run Setup
+
+Assume a fresh agent environment does not have a TMAP key. Before attempting a route lookup:
+
+1. Check whether `open-gil` is available:
+
+```bash
+open-gil --help
+```
+
+2. If it is not installed, prefer the PyPI package:
+
+```bash
+pipx install open-gil
+```
+
+3. If `pipx` is not installed, do not struggle through global `pip install` errors. Tell the user that `pipx` is recommended, or use a temporary venv only when the user asked you to test from source:
+
+```bash
+python3 -m venv /tmp/open-gil-venv
+/tmp/open-gil-venv/bin/python -m pip install open-gil
+/tmp/open-gil-venv/bin/open-gil --help
+```
+
+4. Check key status without exposing secret values:
+
+```bash
+open-gil config show
+```
+
+If the TMAP key is missing, stop before route planning and show this kind of Korean message:
+
+```text
+open-gil은 실제 대중교통 경로와 시간을 TMAP Transit API로 계산합니다.
+현재 이 환경에는 TMAP API 키가 설정되어 있지 않아서 아직 경로 계산을 실행할 수 없습니다.
+
+아래 둘 중 하나로 키를 설정한 뒤 다시 요청해 주세요.
+
+1. 환경변수로 설정:
+   export TMAP_API_KEY="발급받은_appKey"
+
+2. 로컬 설정 파일에 저장:
+   open-gil config set-key
+
+키 값은 화면에 표시하지 않습니다.
+```
+
+Do not phrase the first-run blocker as only "Do you have a key?" Explain why the key is required, what is missing, and the exact next command.
+
 ## Workflow
 
 1. Parse the user's request into structured fields:
