@@ -29,19 +29,17 @@ The first package is `open-gil`, a public-transit departure planner for Seoul, G
 - Agent surfaces: Codex repo skill in `.agents/skills/open-gil`, package skill in `packages/open-gil/skills/open-gil`
 - Output contract: stable JSON envelope plus human-readable Korean route summaries
 - Hard guardrail: one TMAP Transit route calculation per natural-language request
-- Release status: source install works now; first PyPI release is waiting on PyPI Trusted Publisher setup
+- Release status: `open-gil` is published on PyPI
 
 For the design history, tradeoffs, and next steps, see [Open Gil Development Story](docs/open-gil-development-story.md).
 
 ## Install
 
-After the first PyPI release:
-
 ```bash
 pipx install open-gil
 ```
 
-Until then, install `open-gil` directly from this repository:
+You can also install `open-gil` directly from this repository:
 
 ```bash
 pipx install "git+https://github.com/doul735/open_tools.git#subdirectory=packages/open-gil"
