@@ -1,0 +1,22 @@
+{
+  "documents": [
+    {
+      "address_name": "인천 연수구 송도동 316",
+      "address_type": "ROAD_ADDR",
+      "x": "126.6266089",
+      "y": "37.4105748",
+      "address": {
+        "address_name": "인천 연수구 송도동 316"
+      },
+      "road_address": {
+        "address_name": "인천 연수구 센트럴로 415",
+        "building_name": "힐스테이트송도더테라스"
+      }
+    }
+  ],
+  "meta": {
+    "is_end": true,
+    "pageable_count": 1,
+    "total_count": 1
+  }
+}

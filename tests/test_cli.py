@@ -47,7 +47,7 @@ def test_plan_reads_stdin_json_and_outputs_success(monkeypatch) -> None:
             pass
 
     class DummyPlanner:
-        def __init__(self, client, place_selector=None) -> None:
+        def __init__(self, client, place_selector=None, place_fallbacks=None) -> None:
             self.client = client
 
         def plan(self, request):
@@ -71,6 +71,7 @@ def test_plan_reads_stdin_json_and_outputs_success(monkeypatch) -> None:
             )
 
     monkeypatch.setattr(cli, "load_api_key", lambda: "key")
+    monkeypatch.setattr(cli, "load_kakao_rest_api_key", lambda: None)
     monkeypatch.setattr(cli, "TMapClient", DummyClient)
     monkeypatch.setattr(cli, "Planner", DummyPlanner)
 
@@ -83,3 +84,14 @@ def test_plan_reads_stdin_json_and_outputs_success(monkeypatch) -> None:
     assert result.exit_code == 0
     assert '"status": "ok"' in result.stdout
     assert '"time_mode": "depart_at"' in result.stdout
+
+
+def test_config_set_kakao_key_writes_config(monkeypatch, tmp_path: Path) -> None:
+    config = tmp_path / "config.json"
+    monkeypatch.setenv("OPEN_GIL_CONFIG_PATH", str(config))
+
+    result = runner.invoke(cli.app, ["config", "set-kakao-key", "kakao-key"])
+
+    assert result.exit_code == 0
+    assert "Kakao REST API 키를 저장했습니다" in result.stdout
+    assert '"kakao_rest_api_key": "kakao-key"' in config.read_text(encoding="utf-8")

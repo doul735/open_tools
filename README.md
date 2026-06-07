@@ -141,12 +141,12 @@ JSON
 정확한 상태는 다음과 같습니다.
 
 - 장소명 검색과 경로 계산이 모두 성공하면 그대로 답변합니다.
-- TMAP POI 장소명 검색이 `OPEN_GIL_AUTH_FORBIDDEN`으로 막히면, 에이전트가 공개 주소/지도 자료나 사용자 제공 좌표로 출발지/도착지 좌표만 보조 확인할 수 있습니다.
+- TMAP POI 장소명 검색이 `OPEN_GIL_AUTH_FORBIDDEN`, `OPEN_GIL_PLACE_NOT_FOUND`, `OPEN_GIL_QUOTA_EXCEEDED`로 실패하고 `KAKAO_REST_API_KEY`가 있으면 Kakao Local 주소/키워드 검색으로 좌표를 보조 확인합니다.
 - 좌표가 확정되면 `open-gil plan --json`을 좌표 입력으로 다시 실행합니다. 이때 경로, 출발시각, 요금, 환승 정보는 TMAP Transit API 결과만 사용합니다.
-- 좌표가 애매하거나 민감한 장소면 에이전트가 임의로 고르지 않고 사용자에게 선택 또는 좌표 제공을 요청해야 합니다.
+- Kakao Local 후보가 애매하거나 민감한 장소면 에이전트가 임의로 고르지 않고 사용자에게 선택 또는 좌표 제공을 요청해야 합니다.
 - TMAP Transit API 자체가 권한 오류, 한도 초과, 경로 없음으로 실패하면 경로 계산은 불가능합니다.
 
-즉 “자연어 스킬”은 좌표가 확정되고 Transit API가 성공하면 동작합니다. 다만 “장소명만으로 TMAP POI까지 항상 자동 처리”되는 것은 앱키 권한에 따라 달라집니다.
+즉 “자연어 스킬”은 좌표가 확정되고 Transit API가 성공하면 동작합니다. Kakao Local은 좌표화 fallback일 뿐이며, 경로 계산 source of truth는 항상 TMAP Transit API입니다.
 
 ## Coordinates
 
@@ -159,9 +159,9 @@ open-gil plan \
   --event-at "2026-06-06 13:00"
 ```
 
-## API Key
+## API Keys
 
-TMAP API 키가 필요합니다.
+TMAP API 키는 필수입니다.
 
 1. SK Open API에서 앱을 만들고 appKey를 발급합니다.
 2. TMAP 대중교통 API와 POI 검색 API 사용 권한을 확인합니다.
@@ -179,12 +179,25 @@ export TMAP_API_KEY="발급받은_appKey"
 open-gil config set-key
 ```
 
+Kakao Local fallback은 선택이지만 자연어 장소명 품질을 크게 올립니다. Kakao Developers에서 REST API 키를 발급하고 Local API 사용을 확인한 뒤 설정합니다.
+
+```bash
+export KAKAO_REST_API_KEY="발급받은_REST_API_key"
+```
+
+또는 로컬 파일에 저장합니다.
+
+```bash
+open-gil config set-kakao-key
+```
+
 설정 파일은 `~/.config/open-gil/config.json`에 평문으로 저장됩니다. POSIX 환경에서는 `0600` 권한으로 맞춥니다.
 
 공식 문서:
 
 - TMAP 대중교통 API: https://transit.tmapmobility.com/docs/routes
 - TMAP POI 검색 API: https://tmap-skopenapi.readme.io/reference/%EC%9E%A5%EC%86%8C%ED%86%B5%ED%95%A9%EA%B2%80%EC%83%89
+- Kakao Local API: https://developers.kakao.com/docs/latest/ko/local/dev-guide
 - NAVER Maps URL Scheme: https://guide.ncloud-docs.com/docs/en/maps-url-scheme
 - KakaoMap URL Scheme: https://apis.map.kakao.com/ios_v2/docs/getting-started/urlscheme/
 

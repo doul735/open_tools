@@ -7,9 +7,10 @@ from typing import Any
 
 import typer
 
-from .config import config_path, load_api_key, save_api_key
+from .config import config_path, load_api_key, load_kakao_rest_api_key, save_api_key, save_kakao_rest_api_key
 from .errors import INPUT_INVALID, OpenGilError, error_envelope
 from .formatters import error_json, format_plan_text, result_json
+from .kakao import KakaoLocalClient
 from .models import ResolvedPlace
 from .planner import Planner, plan_request_from_mapping
 from .tmap import TMapClient
@@ -26,6 +27,14 @@ def set_key(api_key: str | None = typer.Argument(None, help="TMAP API appKey")) 
     key = api_key or typer.prompt("TMAP API 키", hide_input=True)
     path = save_api_key(key)
     typer.echo(f"TMAP API 키를 저장했습니다: {path}")
+
+
+@config_app.command("set-kakao-key")
+def set_kakao_key(api_key: str | None = typer.Argument(None, help="Kakao REST API key")) -> None:
+    """Store a Kakao REST API key for coordinate fallback with 0600 permissions."""
+    key = api_key or typer.prompt("Kakao REST API 키", hide_input=True)
+    path = save_kakao_rest_api_key(key)
+    typer.echo(f"Kakao REST API 키를 저장했습니다: {path}")
 
 
 @app.command("plan")
@@ -63,17 +72,28 @@ def plan(
         )
         request = plan_request_from_mapping(request_data)
         api_key = load_api_key()
+        kakao_key = load_kakao_rest_api_key()
         client = TMapClient(api_key)
+        place_fallbacks = []
+        kakao_client = None
+        if kakao_key:
+            kakao_client = KakaoLocalClient(kakao_key)
+            place_fallbacks.append(kakao_client)
         if no_cache and client.cache:
             client.cache.enabled = False
+        if no_cache and kakao_client and kakao_client.cache:
+            kakao_client.cache.enabled = False
         planner = Planner(
             client,
             place_selector=None if json_output else _interactive_place_selector,
+            place_fallbacks=place_fallbacks,
         )
         try:
             result = planner.plan(request)
         finally:
             client.close()
+            if kakao_client:
+                kakao_client.close()
 
         if json_output:
             typer.echo(result_json(result))
@@ -185,4 +205,3 @@ def _emit_error(error: OpenGilError, *, json_output: bool, debug: bool) -> None:
             typer.echo(f"debug: {json.dumps(detail, ensure_ascii=False)}", err=True)
     if error.code == "OPEN_GIL_AUTH_MISSING":
         typer.echo(f"설정 파일 경로: {config_path()}", err=True)
-

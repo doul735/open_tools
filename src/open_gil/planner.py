@@ -6,8 +6,11 @@ from typing import Callable
 from pydantic import ValidationError
 
 from .errors import (
+    AUTH_FORBIDDEN,
     INPUT_INVALID,
+    PLACE_NOT_FOUND,
     PLACE_AMBIGUOUS,
+    QUOTA_EXCEEDED,
     ROUTE_NOT_FOUND,
     OpenGilError,
 )
@@ -18,6 +21,7 @@ from .tmap import TMapClient
 
 
 PlaceSelector = Callable[[str, str, list[ResolvedPlace]], ResolvedPlace]
+PLACE_FALLBACK_ERROR_CODES = {AUTH_FORBIDDEN, PLACE_NOT_FOUND, QUOTA_EXCEEDED}
 
 
 class Planner:
@@ -26,10 +30,12 @@ class Planner:
         client: TMapClient,
         *,
         place_selector: PlaceSelector | None = None,
+        place_fallbacks: list | None = None,
         max_workers: int = 4,
     ) -> None:
         self.client = client
         self.place_selector = place_selector
+        self.place_fallbacks = place_fallbacks or []
         self.max_workers = max_workers
 
     def plan(self, request: PlanRequest) -> PlanResult:
@@ -81,16 +87,48 @@ class Planner:
             )
 
         assert place.name is not None
-        candidates = self.client.search_poi(place.name, count=5)
+        candidates = self._search_place_candidates(place.name)
+        return self._select_place(role, place.name, candidates)
+
+    def _search_place_candidates(self, query: str) -> list[ResolvedPlace]:
+        try:
+            return self.client.search_poi(query, count=5)
+        except OpenGilError as primary_error:
+            if primary_error.code not in PLACE_FALLBACK_ERROR_CODES or not self.place_fallbacks:
+                raise
+
+            fallback_errors: list[OpenGilError] = []
+            for fallback in self.place_fallbacks:
+                try:
+                    candidates = fallback.search_poi(query, count=5)
+                except OpenGilError as fallback_error:
+                    fallback_errors.append(fallback_error)
+                    continue
+                if candidates:
+                    return candidates
+
+            actionable = next(
+                (
+                    error
+                    for error in fallback_errors
+                    if error.code not in {PLACE_NOT_FOUND, QUOTA_EXCEEDED}
+                ),
+                None,
+            )
+            if actionable:
+                raise actionable
+            raise primary_error
+
+    def _select_place(self, role: str, query: str, candidates: list[ResolvedPlace]) -> ResolvedPlace:
         if len(candidates) == 1:
             return candidates[0]
         if self.place_selector:
-            return self.place_selector(role, place.name, candidates)
+            return self.place_selector(role, query, candidates)
         raise OpenGilError(
             PLACE_AMBIGUOUS,
-            f"{role} 장소 후보가 여러 개입니다: {place.name}",
+            f"{role} 장소 후보가 여러 개입니다: {query}",
             "후보 중 하나를 선택하거나 좌표를 직접 입력하세요.",
-            details={"role": role, "query": place.name, "candidates": [c.model_dump() for c in candidates]},
+            details={"role": role, "query": query, "candidates": [c.model_dump() for c in candidates]},
         )
 
     def _quota_safe_target_candidate(

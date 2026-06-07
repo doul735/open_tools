@@ -1,0 +1,23 @@
+{
+  "documents": [
+    {
+      "id": "26338954",
+      "place_name": "내수동교회",
+      "category_name": "문화,예술 > 종교 > 기독교 > 교회",
+      "address_name": "서울 종로구 내수동 110-5",
+      "road_address_name": "서울 종로구 경희궁2길 5-6",
+      "x": "126.9707238",
+      "y": "37.5727687"
+    }
+  ],
+  "meta": {
+    "is_end": true,
+    "pageable_count": 1,
+    "same_name": {
+      "keyword": "내수동교회",
+      "region": [],
+      "selected_region": ""
+    },
+    "total_count": 1
+  }
+}

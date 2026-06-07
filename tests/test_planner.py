@@ -2,7 +2,7 @@ from datetime import datetime, timedelta
 
 import pytest
 
-from open_gil.errors import PLACE_AMBIGUOUS, OpenGilError
+from open_gil.errors import AUTH_FORBIDDEN, PLACE_AMBIGUOUS, OpenGilError
 from open_gil.models import PlanRequest, ResolvedPlace, RouteCandidate
 from open_gil.planner import Planner
 from open_gil.timeutils import DEFAULT_TZ
@@ -16,8 +16,11 @@ class FakeClient:
     def __init__(self, *, duration_minutes: int = 20) -> None:
         self.duration_minutes = duration_minutes
         self.route_calls: list[datetime] = []
+        self.route_origins: list[ResolvedPlace] = []
 
     def search_poi(self, query: str, *, count: int = 5):
+        if query == "needs-fallback":
+            raise OpenGilError(AUTH_FORBIDDEN, "TMAP POI 권한 없음")
         if query == "ambiguous":
             return [
                 ResolvedPlace(name="후보1", lat=37.1, lon=127.1),
@@ -27,6 +30,7 @@ class FakeClient:
 
     def search_transit_route(self, origin, destination, departure_at: datetime) -> RouteCandidate:
         self.route_calls.append(departure_at)
+        self.route_origins.append(origin)
         duration = self.duration_minutes * 60
         return RouteCandidate(
             depart_at=departure_at,
@@ -36,8 +40,22 @@ class FakeClient:
             total_walk_time_seconds=300,
             route_summary="도보 -> 지하철 1호선 -> 도보",
             route_signature="SUBWAY:1:origin>dest",
-            legs=[],
+        legs=[],
         )
+
+
+class FakeFallback:
+    def search_poi(self, query: str, *, count: int = 5):
+        assert query == "needs-fallback"
+        return [
+            ResolvedPlace(
+                name="카카오 후보",
+                lat=37.33,
+                lon=126.77,
+                address="경기 테스트시 테스트로 1",
+                source="kakao_local_keyword",
+            )
+        ]
 
 
 def test_event_at_applies_15_minute_buffer_and_selects_latest_qualifying() -> None:
@@ -114,3 +132,21 @@ def test_ambiguous_place_without_selector_returns_structured_error() -> None:
 
     assert exc.value.code == PLACE_AMBIGUOUS
     assert len(exc.value.details["candidates"]) == 2
+
+
+def test_place_lookup_falls_back_to_kakao_when_tmap_poi_is_forbidden() -> None:
+    client = FakeClient()
+    planner = Planner(client, place_fallbacks=[FakeFallback()])
+    request = PlanRequest.model_validate(
+        {
+            "origin": "needs-fallback",
+            "destination": {"lat": DEST.lat, "lon": DEST.lon},
+            "depart_at": "2026-06-06 09:00",
+        }
+    )
+
+    result = planner.plan(request)
+
+    assert result.origin.name == "카카오 후보"
+    assert result.origin.source == "kakao_local_keyword"
+    assert client.route_origins[0].lat == 37.33

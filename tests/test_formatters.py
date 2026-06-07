@@ -81,3 +81,29 @@ def test_format_real_songdo_olympic_fixture() -> None:
     assert "3. 같은 정류장 환승: 선릉역에서 버스 광역:M6450 하차 후 버스 간선:360 탑승" in text
     assert "5. 같은 정류장 환승: 잠실트리지움아파트앞에서 버스 간선:360 하차 후 버스 지선:3323 탑승" in text
     assert "7. 도보: 올림픽베어스타운아파트앞 -> 올림픽홀" in text
+
+
+def test_format_plan_text_discloses_kakao_coordinate_source() -> None:
+    departure = datetime(2026, 6, 8, 9, 0, tzinfo=DEFAULT_TZ)
+    candidate = RouteCandidate(
+        kind="fixed",
+        depart_at=departure,
+        arrive_at=datetime(2026, 6, 8, 10, 0, tzinfo=DEFAULT_TZ),
+        duration_seconds=3600,
+        route_summary="버스 100",
+        route_signature="BUS:100:a>b",
+    )
+    result = PlanResult(
+        origin=ResolvedPlace(name="출발", lat=37.4, lon=126.6, source="kakao_local_keyword"),
+        destination=ResolvedPlace(name="도착", lat=37.5, lon=127.1, source="tmap_poi"),
+        time_mode="depart_at",
+        requested_time=departure,
+        arrival_buffer_minutes=0,
+        candidates=[candidate],
+        verification_links=VerificationLinks(naver_maps="nmap://route/public", kakao_map="kakao"),
+    )
+
+    text = format_plan_text(result)
+
+    assert "좌표 확인: 출발지 Kakao Local 키워드 검색" in text
+    assert "TMAP Transit API 결과만 사용했습니다" in text

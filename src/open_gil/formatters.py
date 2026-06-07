@@ -59,12 +59,39 @@ def format_plan_text(result: PlanResult) -> str:
         lines.append(f"탐색 방식: {result.planning_note}")
         lines.append("")
 
+    coordinate_note = _coordinate_source_note(result)
+    if coordinate_note:
+        lines.append(coordinate_note)
+        lines.append("")
+
     lines.append("확인 링크")
     lines.append(f"- 네이버지도: {result.verification_links.naver_maps}")
     lines.append(f"- 카카오맵: {result.verification_links.kakao_map}")
     lines.append("")
     lines.append(result.disclaimer)
     return "\n".join(lines).rstrip() + "\n"
+
+
+def _coordinate_source_note(result: PlanResult) -> str | None:
+    sources: list[str] = []
+    if result.origin.source.startswith("kakao_local"):
+        sources.append(f"출발지 {_source_label(result.origin.source)}")
+    if result.destination.source.startswith("kakao_local"):
+        sources.append(f"도착지 {_source_label(result.destination.source)}")
+    if not sources:
+        return None
+    return (
+        "좌표 확인: "
+        + ", ".join(sources)
+        + ". 경로/시간/요금/환승 계산은 TMAP Transit API 결과만 사용했습니다."
+    )
+
+
+def _source_label(source: str) -> str:
+    return {
+        "kakao_local_keyword": "Kakao Local 키워드 검색",
+        "kakao_local_address": "Kakao Local 주소 검색",
+    }.get(source, source)
 
 
 def _format_candidate(candidate: RouteCandidate) -> list[str]:
