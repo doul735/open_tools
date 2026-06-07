@@ -20,8 +20,21 @@ LLM은 길찾기 질문에 그럴듯한 답을 만들 수 있지만, 실제 대�
 
 ## Quick Start
 
+Until the first PyPI release is live, install from this repository:
+
+```bash
+pipx install "git+https://github.com/doul735/open_tools.git#subdirectory=packages/open-gil"
+```
+
+After PyPI release:
+
 ```bash
 pipx install open-gil
+```
+
+Configure your TMAP key:
+
+```bash
 open-gil config set-key
 ```
 
@@ -245,6 +258,16 @@ python -m build packages/open-gil
 ```
 
 PyPI에 실제 배포하려면 PyPI에서 Trusted Publisher를 이 저장소와 `publish.yml` 워크플로에 연결하세요.
+
+Pending publisher 값:
+
+```text
+Project name: open-gil
+Owner: doul735
+Repository name: open_tools
+Workflow name: publish.yml
+Environment name: pypi
+```
 
 ## Limits
 
