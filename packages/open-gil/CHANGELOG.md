@@ -4,6 +4,7 @@
 
 - Clarified that `/tmp` virtual environments are only for throwaway checks, and documented a persistent user venv fallback when `pipx` is unavailable.
 - Clarified that persistent venv users must run the full open-gil binary path unless they add it to `PATH`.
+- Clarified that install-only agent runs should not edit shell startup files, create aliases, or add symlinks.
 
 ## 0.1.5
 

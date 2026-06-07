@@ -46,6 +46,8 @@ OPEN_GIL_BIN="$HOME/.local/share/open-gil/venv/bin/open-gil"
 
 If you used the persistent venv fallback, use `$OPEN_GIL_BIN` or the full binary path for later `config show`, `setup`, and `plan` commands. Do not tell the user that bare `open-gil` will work unless the command is actually on `PATH`.
 
+For install-and-check-only requests, do not edit shell startup files, create aliases, or add symlinks. At most, mention that PATH or alias setup can be done later as a separate optional step.
+
 Use `/tmp/open-gil-venv` only for throwaway verification or source testing. macOS and other systems may clean `/tmp`, so `/tmp` installs are not suitable for first-run setup or recurring use.
 
 4. Check key status without exposing secret values:
