@@ -34,14 +34,16 @@ pipx install open-gil
 pipx upgrade open-gil
 ```
 
-3. If `pipx` is not installed, do not struggle through global `pip install` errors. Tell the user that `pipx` is recommended, or use a temporary venv only when the user asked you to test from source. Existing `/tmp/open-gil-venv` environments may contain stale versions, so always run `--upgrade` with a minimum version:
+3. If `pipx` is not installed and the user wants to keep using open-gil, do not use `/tmp` for the main install. Use a persistent user venv under the home directory and remind the user to run the full binary path:
 
 ```bash
-python3 -m venv /tmp/open-gil-venv
-/tmp/open-gil-venv/bin/python -m pip install --upgrade pip
-/tmp/open-gil-venv/bin/python -m pip install --upgrade "open-gil>=0.1.4"
-/tmp/open-gil-venv/bin/open-gil --version
+python3 -m venv "$HOME/.local/share/open-gil/venv"
+"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade pip
+"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.4"
+"$HOME/.local/share/open-gil/venv/bin/open-gil" --version
 ```
+
+Use `/tmp/open-gil-venv` only for throwaway verification or source testing. macOS and other systems may clean `/tmp`, so `/tmp` installs are not suitable for first-run setup or recurring use.
 
 4. Check key status without exposing secret values:
 

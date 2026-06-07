@@ -1,5 +1,9 @@
 # Changelog
 
+## Unreleased
+
+- Clarified that `/tmp` virtual environments are only for throwaway checks, and documented a persistent user venv fallback when `pipx` is unavailable.
+
 ## 0.1.5
 
 - Reworded `open-gil setup` guidance to explain that typed API-key characters are intentionally not shown on screen.

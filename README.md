@@ -39,6 +39,15 @@ For the design history, tradeoffs, and next steps, see [Open Gil Development Sto
 pipx install open-gil
 ```
 
+If `pipx` is unavailable, use a persistent venv instead of `/tmp`:
+
+```bash
+python3 -m venv "$HOME/.local/share/open-gil/venv"
+"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade pip
+"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.4"
+"$HOME/.local/share/open-gil/venv/bin/open-gil" --version
+```
+
 You can also install `open-gil` directly from this repository:
 
 ```bash

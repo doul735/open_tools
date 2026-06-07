@@ -27,6 +27,17 @@ pipx install open-gil
 open-gil --version
 ```
 
+If `pipx` is not installed and you do not want to change your system setup, use a persistent venv under your home directory:
+
+```bash
+python3 -m venv "$HOME/.local/share/open-gil/venv"
+"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade pip
+"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.4"
+"$HOME/.local/share/open-gil/venv/bin/open-gil" --version
+```
+
+Avoid using `/tmp` for recurring use because macOS and other systems may clean it.
+
 Or install directly from the repository:
 
 ```bash
