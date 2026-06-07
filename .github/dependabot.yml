@@ -6,7 +6,6 @@ updates:
       interval: weekly
 
   - package-ecosystem: pip
-    directory: /
+    directory: /packages/open-gil
     schedule:
       interval: weekly
-
