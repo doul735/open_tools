@@ -25,7 +25,7 @@ Assume a fresh agent environment does not have a TMAP key. Before attempting a r
 open-gil --version
 ```
 
-Use `open-gil` 0.1.2 or newer. If the command is missing or the version is older, install or upgrade before continuing.
+Use `open-gil` 0.1.3 or newer. If the command is missing or the version is older, install or upgrade before continuing.
 
 2. If it is not installed, prefer the PyPI package. If `pipx` already has `open-gil`, upgrade it:
 
@@ -39,7 +39,7 @@ pipx upgrade open-gil
 ```bash
 python3 -m venv /tmp/open-gil-venv
 /tmp/open-gil-venv/bin/python -m pip install --upgrade pip
-/tmp/open-gil-venv/bin/python -m pip install --upgrade "open-gil>=0.1.2"
+/tmp/open-gil-venv/bin/python -m pip install --upgrade "open-gil>=0.1.3"
 /tmp/open-gil-venv/bin/open-gil --version
 ```
 
@@ -48,6 +48,11 @@ python3 -m venv /tmp/open-gil-venv
 ```bash
 open-gil config show
 ```
+
+When reporting setup status, do not group TMAP and Kakao as equal blockers:
+
+- TMAP API key is required. If missing, route calculation must stop.
+- Kakao REST API key is optional. If missing, only Kakao Local coordinate fallback is unavailable.
 
 If the TMAP key is missing, stop before route planning and show this kind of Korean message:
 
@@ -63,6 +68,7 @@ open-gil은 실제 대중교통 경로와 시간을 TMAP Transit API로 계산�
 2. 로컬 설정 파일에 저장:
    open-gil config set-key
 
+Kakao REST API 키는 선택 사항입니다. 없어도 TMAP 키가 있으면 경로 계산을 시도할 수 있습니다.
 키 값은 화면에 표시하지 않습니다.
 ```
 

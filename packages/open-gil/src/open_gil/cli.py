@@ -246,10 +246,18 @@ def _format_config_status(status: dict[str, Any]) -> str:
         lines.append(f"- 설정 파일 권한: {status['config_mode']}")
     lines.extend(
         [
-            f"- TMAP API 키: {_configured_label(tmap)}",
-            f"- Kakao REST API 키: {_configured_label(kakao)} (선택, 장소명 fallback용)",
+            f"- TMAP API 키(필수): {_configured_label(tmap)}",
+            f"- Kakao REST API 키(선택): {_configured_label(kakao)} - 장소명 좌표 fallback용",
         ]
     )
+    if not kakao["configured"]:
+        lines.extend(
+            [
+                "",
+                "Kakao REST API 키는 선택 사항입니다. 없어도 TMAP POI 장소 검색과 TMAP Transit 경로 계산은 시도할 수 있습니다.",
+                "다만 TMAP POI 장소명 검색이 막히거나 실패할 때 Kakao Local 좌표 fallback을 사용할 수 없습니다.",
+            ]
+        )
 
     if not tmap["configured"]:
         lines.extend(

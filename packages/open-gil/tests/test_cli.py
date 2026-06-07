@@ -16,7 +16,7 @@ def test_version_option() -> None:
     result = runner.invoke(cli.app, ["--version"])
 
     assert result.exit_code == 0
-    assert "open-gil 0.1.2" in result.stdout
+    assert "open-gil 0.1.3" in result.stdout
 
 
 def test_plan_json_reports_missing_key(monkeypatch, tmp_path: Path) -> None:
@@ -113,7 +113,9 @@ def test_config_show_explains_missing_tmap_key(monkeypatch, tmp_path: Path) -> N
     result = runner.invoke(cli.app, ["config", "show"])
 
     assert result.exit_code == 0
-    assert "TMAP API 키: 없음" in result.stdout
+    assert "TMAP API 키(필수): 없음" in result.stdout
+    assert "Kakao REST API 키(선택): 없음" in result.stdout
+    assert "Kakao REST API 키는 선택 사항입니다." in result.stdout
     assert "TMAP API 키가 없어 아직 경로 계산을 시작할 수 없습니다." in result.stdout
     assert 'export TMAP_API_KEY="발급받은_appKey"' in result.stdout
     assert "open-gil config set-key" in result.stdout
