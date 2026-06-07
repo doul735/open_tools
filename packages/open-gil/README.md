@@ -16,6 +16,8 @@ LLM은 길찾기 질문에 그럴듯한 답을 만들 수 있지만, 실제 대�
 
 핵심 원칙은 단순합니다. 모르면 추측하지 않고, API가 준 것만 말합니다.
 
+개발 과정, 시행착오, 현재 한계, 다음 개선 방향은 루트 문서 [open-gil Development Story](../../docs/open-gil-development-story.md)에 정리되어 있습니다.
+
 ## Quick Start
 
 ```bash
