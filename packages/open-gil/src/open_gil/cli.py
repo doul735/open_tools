@@ -45,6 +45,11 @@ def main(
 @config_app.command("set-key")
 def set_key(api_key: str | None = typer.Argument(None, help="TMAP API appKey")) -> None:
     """Store a TMAP API key in ~/.config/open-gil/config.json with 0600 permissions."""
+    if api_key is not None:
+        typer.echo(
+            "주의: API 키를 명령 인자로 넘기면 셸 기록에 남을 수 있습니다. 다음부터는 open-gil setup을 사용하세요.",
+            err=True,
+        )
     key = api_key or typer.prompt("TMAP API 키", hide_input=True)
     path = save_api_key(key)
     typer.echo(f"TMAP API 키를 저장했습니다: {path}")
@@ -78,6 +83,50 @@ def show_config(json_output: bool = typer.Option(False, "--json", help="JSON env
 def status_config(json_output: bool = typer.Option(False, "--json", help="JSON envelope 출력")) -> None:
     """Alias for config show."""
     show_config(json_output=json_output)
+
+
+@app.command("setup")
+def setup() -> None:
+    """Guide first-time users through required TMAP key setup."""
+    try:
+        reset_invalid = False
+        try:
+            status = config_status()
+        except OpenGilError as exc:
+            if exc.code != INPUT_INVALID:
+                raise
+            reset_invalid = True
+            status = _empty_config_status()
+        typer.echo("open-gil 초기 설정")
+        typer.echo("TMAP API 키는 실제 대중교통 경로와 시간을 계산하기 위한 필수 키입니다.")
+        typer.echo("API 키를 Claude/Codex/ChatGPT 채팅창에 붙여넣지 마세요.")
+        typer.echo("이 명령의 터미널 숨김 입력 프롬프트에 직접 입력하세요.")
+        typer.echo("")
+        if reset_invalid:
+            typer.echo("기존 설정 파일을 JSON으로 읽을 수 없어 새 설정 파일로 다시 저장합니다.")
+            typer.echo("")
+
+        if status["tmap_api_key"]["configured"]:
+            typer.echo(f"TMAP API 키(필수): {_configured_label(status['tmap_api_key'])}")
+            typer.echo("이미 경로 계산에 필요한 필수 키가 설정되어 있습니다.")
+            if status["tmap_api_key"]["source"] == "environment":
+                typer.echo("현재 키는 TMAP_API_KEY 환경변수에서 읽고 있으며, 환경변수는 로컬 설정 파일보다 우선합니다.")
+                typer.echo("이 키가 유효하지 않다면 현재 터미널에서 TMAP_API_KEY를 새 값으로 바꾸거나, unset TMAP_API_KEY 후 open-gil setup을 다시 실행하세요.")
+            typer.echo("")
+            typer.echo(_format_config_status(status))
+            return
+
+        typer.echo("TMAP API 키(필수): 없음")
+        typer.echo("키를 발급한 뒤 아래 숨김 입력 프롬프트에 직접 입력하세요.")
+        typer.echo("이미 키를 채팅창에 붙여넣었다면, 해당 키는 폐기하고 새 키를 발급하는 편이 안전합니다.")
+        key = typer.prompt("TMAP API 키를 터미널에 직접 입력하세요", hide_input=True)
+        path = save_api_key(key, reset_invalid=reset_invalid)
+        typer.echo(f"TMAP API 키를 저장했습니다: {path}")
+        typer.echo("")
+        typer.echo(_format_config_status(config_status()))
+    except OpenGilError as exc:
+        _emit_error(exc, json_output=False, debug=False)
+        raise typer.Exit(1) from exc
 
 
 @app.command("plan")
@@ -266,12 +315,23 @@ def _format_config_status(status: dict[str, Any]) -> str:
                 "TMAP API 키가 없어 아직 경로 계산을 시작할 수 없습니다.",
                 "먼저 TMAP appKey를 발급한 뒤 아래 둘 중 하나로 설정하세요.",
                 '1. 환경변수: export TMAP_API_KEY="발급받은_appKey"',
-                "2. 로컬 저장: open-gil config set-key",
+                "2. 터미널 숨김 입력: open-gil setup",
                 "",
                 "키 값은 화면에 표시하지 않으며, 로컬 설정 파일은 POSIX 환경에서 0600 권한으로 저장됩니다.",
             ]
         )
     return "\n".join(lines)
+
+
+def _empty_config_status() -> dict[str, Any]:
+    target = config_path()
+    return {
+        "config_path": str(target),
+        "config_exists": target.exists(),
+        "config_mode": None,
+        "tmap_api_key": {"configured": False, "source": None},
+        "kakao_rest_api_key": {"configured": False, "source": None},
+    }
 
 
 def _configured_label(value: dict[str, Any]) -> str:

@@ -114,6 +114,7 @@ def test_tmap_auth_error_is_specific() -> None:
 
     assert exc.value.code == AUTH_INVALID
     assert "API 키" in exc.value.message
+    assert "unset TMAP_API_KEY 후 open-gil setup" in (exc.value.remediation or "")
 
 
 def test_tmap_forbidden_error_is_permission_specific() -> None:

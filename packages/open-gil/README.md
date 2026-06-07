@@ -40,7 +40,7 @@ open-gil config show
 ```
 
 ```bash
-open-gil config set-key
+open-gil setup
 ```
 
 그 다음 바로 물어볼 수 있습니다.
@@ -144,7 +144,7 @@ JSON
   "error": {
     "code": "OPEN_GIL_AUTH_INVALID",
     "message": "TMAP API 키가 유효하지 않습니다.",
-    "remediation": "TMAP_API_KEY 값 또는 open-gil config set-key로 저장한 키를 확인하세요."
+    "remediation": "키를 채팅창에 붙여넣지 마세요. TMAP_API_KEY 환경변수를 쓰고 있다면 새 값으로 바꾸거나 unset TMAP_API_KEY 후 open-gil setup을 실행하세요."
   }
 }
 ```
@@ -186,18 +186,20 @@ TMAP API 키는 필수입니다.
 
 1. SK Open API에서 앱을 만들고 appKey를 발급합니다.
 2. TMAP 대중교통 API와 POI 검색 API 사용 권한을 확인합니다.
-3. 환경변수나 로컬 설정 파일로 키를 설정합니다.
+3. 키를 채팅창에 붙여넣지 말고, 터미널 숨김 입력 프롬프트로 설정합니다.
 
-환경변수가 우선입니다.
+일반 사용자는 `setup` 명령을 쓰는 것을 권장합니다.
+
+```bash
+open-gil setup
+```
+
+이 명령은 키를 화면에 표시하지 않는 숨김 입력 프롬프트를 열고, 로컬 설정 파일에 저장합니다.
+
+고급 사용자는 환경변수를 쓸 수 있습니다. 환경변수가 로컬 설정 파일보다 우선합니다.
 
 ```bash
 export TMAP_API_KEY="발급받은_appKey"
-```
-
-로컬 파일에 저장할 수도 있습니다.
-
-```bash
-open-gil config set-key
 ```
 
 키 설정 상태는 값 노출 없이 확인할 수 있습니다.
@@ -205,6 +207,8 @@ open-gil config set-key
 ```bash
 open-gil config show
 ```
+
+API 키를 Claude, Codex, ChatGPT 같은 채팅창에 붙여넣지 마세요. 이미 실제 키를 채팅창에 붙여넣었다면 해당 키는 폐기하고 새 키를 발급하는 편이 안전합니다.
 
 Kakao Local fallback은 선택이지만 자연어 장소명 품질을 크게 올립니다. Kakao Developers에서 REST API 키를 발급하고 Local API 사용을 확인한 뒤 설정합니다.
 
