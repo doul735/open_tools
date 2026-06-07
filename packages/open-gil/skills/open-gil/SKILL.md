@@ -34,19 +34,26 @@ pipx install open-gil
 pipx upgrade open-gil
 ```
 
-3. If `pipx` is not installed, do not struggle through global `pip install` errors. Tell the user that `pipx` is recommended, or use a temporary venv only when the user asked you to test from source. Existing `/tmp/open-gil-venv` environments may contain stale versions, so always run `--upgrade` with a minimum version:
+3. If `pipx` is not installed and the user wants to keep using open-gil, do not use `/tmp` for the main install. Use a persistent user venv under the home directory and remind the user to run the full binary path:
 
 ```bash
-python3 -m venv /tmp/open-gil-venv
-/tmp/open-gil-venv/bin/python -m pip install --upgrade pip
-/tmp/open-gil-venv/bin/python -m pip install --upgrade "open-gil>=0.1.4"
-/tmp/open-gil-venv/bin/open-gil --version
+python3 -m venv "$HOME/.local/share/open-gil/venv"
+"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade pip
+"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.4"
+OPEN_GIL_BIN="$HOME/.local/share/open-gil/venv/bin/open-gil"
+"$OPEN_GIL_BIN" --version
 ```
+
+If you used the persistent venv fallback, use `$OPEN_GIL_BIN` or the full binary path for later `config show`, `setup`, and `plan` commands. Do not tell the user that bare `open-gil` will work unless the command is actually on `PATH`.
+
+Use `/tmp/open-gil-venv` only for throwaway verification or source testing. macOS and other systems may clean `/tmp`, so `/tmp` installs are not suitable for first-run setup or recurring use.
 
 4. Check key status without exposing secret values:
 
 ```bash
 open-gil config show
+# Or, after the persistent venv fallback:
+"$HOME/.local/share/open-gil/venv/bin/open-gil" config show
 ```
 
 When reporting setup status, do not group TMAP and Kakao as equal blockers:
@@ -66,6 +73,9 @@ API 키를 입력하라는 화면이 나오면 키를 입력하고 Enter를 누�
 입력하는 동안 글자가 화면에 보이지 않는 것이 정상입니다.
 
 open-gil setup
+
+영구 venv 경로로 설치했다면 아래 명령을 대신 실행하세요.
+$HOME/.local/share/open-gil/venv/bin/open-gil setup
 
 Kakao REST API 키는 선택 사항입니다. 없어도 TMAP 키가 있으면 경로 계산을 시도할 수 있습니다.
 키 값은 화면에 표시하지 않습니다.
