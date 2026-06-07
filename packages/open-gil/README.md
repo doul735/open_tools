@@ -33,8 +33,11 @@ If `pipx` is not installed and you do not want to change your system setup, use 
 python3 -m venv "$HOME/.local/share/open-gil/venv"
 "$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade pip
 "$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.4"
-"$HOME/.local/share/open-gil/venv/bin/open-gil" --version
+OPEN_GIL_BIN="$HOME/.local/share/open-gil/venv/bin/open-gil"
+"$OPEN_GIL_BIN" --version
 ```
+
+If you used the persistent venv fallback, use `$OPEN_GIL_BIN` or the full binary path for the commands below instead of bare `open-gil`.
 
 Avoid using `/tmp` for recurring use because macOS and other systems may clean it.
 
@@ -48,10 +51,14 @@ Configure your TMAP key:
 
 ```bash
 open-gil config show
+# Or, with the persistent venv fallback:
+"$HOME/.local/share/open-gil/venv/bin/open-gil" config show
 ```
 
 ```bash
 open-gil setup
+# Or, with the persistent venv fallback:
+"$HOME/.local/share/open-gil/venv/bin/open-gil" setup
 ```
 
 그 다음 바로 물어볼 수 있습니다.

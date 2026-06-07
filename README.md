@@ -45,8 +45,11 @@ If `pipx` is unavailable, use a persistent venv instead of `/tmp`:
 python3 -m venv "$HOME/.local/share/open-gil/venv"
 "$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade pip
 "$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.4"
-"$HOME/.local/share/open-gil/venv/bin/open-gil" --version
+OPEN_GIL_BIN="$HOME/.local/share/open-gil/venv/bin/open-gil"
+"$OPEN_GIL_BIN" --version
 ```
+
+Use `$OPEN_GIL_BIN` or the full binary path for later commands unless you add the venv `bin` directory to your shell `PATH`.
 
 You can also install `open-gil` directly from this repository:
 
