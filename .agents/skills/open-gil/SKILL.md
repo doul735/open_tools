@@ -19,6 +19,8 @@ Natural-language status:
 
 Assume a fresh agent environment does not have a TMAP key. Before attempting a route lookup:
 
+For public first-time onboarding, prefer the human-terminal path: the user installs `open-gil`, runs `open-gil setup` in Terminal/iTerm, then asks the agent to plan routes. Agent-assisted installation is secondary because API-key entry requires a real interactive terminal and some agent shells may not share the same runtime environment as the user's normal terminal.
+
 1. Check whether `open-gil` is available and verify the installed version:
 
 ```bash

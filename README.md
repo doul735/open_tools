@@ -35,9 +35,18 @@ For the design history, tradeoffs, and next steps, see [Open Gil Development Sto
 
 ## Install
 
+Recommended for most users: install and configure `open-gil` in your own terminal first, then use it from Claude Code, Codex, or another agent.
+
+Agent-assisted installs can be useful for checking a setup, but API-key entry needs a real interactive terminal and some agent shells may not share the same runtime environment as your normal terminal.
+
 ```bash
 pipx install open-gil
+open-gil --version
+open-gil setup
+open-gil config show
 ```
+
+Do not paste your TMAP API key into an AI chat. `open-gil setup` asks for the key in your terminal and stores it locally.
 
 If `pipx` is unavailable, use a persistent venv instead of `/tmp`:
 
