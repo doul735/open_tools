@@ -20,12 +20,20 @@ LLM은 길찾기 질문에 그럴듯한 답을 만들 수 있지만, 실제 대�
 
 ## Quick Start
 
+Recommended for most users: install and configure `open-gil` in your own terminal first, then ask Claude Code, Codex, or another agent to use it.
+
+Agent-assisted installs can be useful for checking a setup, but API-key entry needs a real interactive terminal and some agent shells may not share the same runtime environment as your normal terminal.
+
 Install from PyPI:
 
 ```bash
 pipx install open-gil
 open-gil --version
+open-gil setup
+open-gil config show
 ```
+
+Do not paste your TMAP API key into an AI chat. `open-gil setup` asks for the key in your terminal and stores it locally.
 
 If `pipx` is not installed and you do not want to change your system setup, use a persistent venv under your home directory:
 
@@ -38,6 +46,8 @@ OPEN_GIL_BIN="$HOME/.local/share/open-gil/venv/bin/open-gil"
 ```
 
 If you used the persistent venv fallback, use `$OPEN_GIL_BIN` or the full binary path for the commands below instead of bare `open-gil`.
+Changing shell startup files, aliases, symlinks, or `PATH` is optional and should be handled as a separate shell setup step.
+Do not delete this venv if you plan to run `open-gil setup` or use open-gil later; it is the actual install location for the fallback path.
 
 Avoid using `/tmp` for recurring use because macOS and other systems may clean it.
 
@@ -47,18 +57,11 @@ Or install directly from the repository:
 pipx install "git+https://github.com/doul735/open_tools.git#subdirectory=packages/open-gil"
 ```
 
-Configure your TMAP key:
+If you used the persistent venv fallback, run setup and checks with the full path:
 
 ```bash
-open-gil config show
-# Or, with the persistent venv fallback:
-"$HOME/.local/share/open-gil/venv/bin/open-gil" config show
-```
-
-```bash
-open-gil setup
-# Or, with the persistent venv fallback:
 "$HOME/.local/share/open-gil/venv/bin/open-gil" setup
+"$HOME/.local/share/open-gil/venv/bin/open-gil" config show
 ```
 
 그 다음 바로 물어볼 수 있습니다.

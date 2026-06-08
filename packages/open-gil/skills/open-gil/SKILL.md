@@ -19,6 +19,8 @@ Natural-language status:
 
 Assume a fresh agent environment does not have a TMAP key. Before attempting a route lookup:
 
+For public first-time onboarding, prefer the human-terminal path: the user installs `open-gil`, runs `open-gil setup` in Terminal/iTerm, then asks the agent to plan routes. Agent-assisted installation is secondary because API-key entry requires a real interactive terminal and some agent shells may not share the same runtime environment as the user's normal terminal.
+
 1. Check whether `open-gil` is available and verify the installed version:
 
 ```bash
@@ -45,6 +47,12 @@ OPEN_GIL_BIN="$HOME/.local/share/open-gil/venv/bin/open-gil"
 ```
 
 If you used the persistent venv fallback, use `$OPEN_GIL_BIN` or the full binary path for later `config show`, `setup`, and `plan` commands. Do not tell the user that bare `open-gil` will work unless the command is actually on `PATH`.
+
+For install-and-check-only requests, do not edit shell startup files, create aliases, or add symlinks. At most, mention that PATH or alias setup can be done later as a separate optional step.
+
+Treat the persistent venv as the real user install. Do not delete it, the cloned repo, or related install paths during cleanup unless the user explicitly asked for a throwaway test or uninstall. If the user is expected to run `setup` next, keep the binary path available.
+
+If a previously reported full binary path later fails with "no such file or directory", first check whether the install was cleaned up or created in a different environment. Do not claim a sandbox or overlay-filesystem cause unless that has been directly verified.
 
 Use `/tmp/open-gil-venv` only for throwaway verification or source testing. macOS and other systems may clean `/tmp`, so `/tmp` installs are not suitable for first-run setup or recurring use.
 
