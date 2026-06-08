@@ -51,6 +51,7 @@ OPEN_GIL_BIN="$HOME/.local/share/open-gil/venv/bin/open-gil"
 
 Use `$OPEN_GIL_BIN` or the full binary path for later commands.
 Changing shell startup files, aliases, symlinks, or `PATH` is optional and should be handled as a separate shell setup step.
+Do not delete this venv if you plan to run `open-gil setup` or use open-gil later; it is the actual install location for the fallback path.
 
 You can also install `open-gil` directly from this repository:
 

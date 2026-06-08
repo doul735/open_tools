@@ -48,6 +48,10 @@ If you used the persistent venv fallback, use `$OPEN_GIL_BIN` or the full binary
 
 For install-and-check-only requests, do not edit shell startup files, create aliases, or add symlinks. At most, mention that PATH or alias setup can be done later as a separate optional step.
 
+Treat the persistent venv as the real user install. Do not delete it, the cloned repo, or related install paths during cleanup unless the user explicitly asked for a throwaway test or uninstall. If the user is expected to run `setup` next, keep the binary path available.
+
+If a previously reported full binary path later fails with "no such file or directory", first check whether the install was cleaned up or created in a different environment. Do not claim a sandbox or overlay-filesystem cause unless that has been directly verified.
+
 Use `/tmp/open-gil-venv` only for throwaway verification or source testing. macOS and other systems may clean `/tmp`, so `/tmp` installs are not suitable for first-run setup or recurring use.
 
 4. Check key status without exposing secret values:

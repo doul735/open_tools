@@ -39,6 +39,7 @@ OPEN_GIL_BIN="$HOME/.local/share/open-gil/venv/bin/open-gil"
 
 If you used the persistent venv fallback, use `$OPEN_GIL_BIN` or the full binary path for the commands below instead of bare `open-gil`.
 Changing shell startup files, aliases, symlinks, or `PATH` is optional and should be handled as a separate shell setup step.
+Do not delete this venv if you plan to run `open-gil setup` or use open-gil later; it is the actual install location for the fallback path.
 
 Avoid using `/tmp` for recurring use because macOS and other systems may clean it.
 
