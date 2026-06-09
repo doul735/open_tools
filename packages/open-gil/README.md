@@ -22,6 +22,8 @@ LLM은 길찾기 질문에 그럴듯한 답을 만들 수 있지만, 실제 대�
 
 Recommended for most users: install and configure `open-gil` in your own terminal first, then ask Claude Code, Codex, or another agent to use it.
 
+If you want Claude Code to clone the repo, install the CLI, and register the `/open-gil` skill in one pass, use the Korean onboarding prompt in [Open Gil Claude Code Onboarding Prompt](https://github.com/doul735/open_tools/blob/main/docs/open-gil-claude-code-onboarding-prompt.md).
+
 Agent-assisted installs can be useful for checking a setup, but API-key entry needs a real interactive terminal and some agent shells may not share the same runtime environment as your normal terminal.
 
 Install from PyPI:
@@ -72,6 +74,18 @@ In Claude Code or Codex:
 ```text
 내일 오후 1시에 올림픽홀 공연이 있는데, 송도에서 몇 시에 출발하면 돼?
 ```
+
+### Claude Code `/open-gil`
+
+Installing the CLI does not automatically register the Claude Code `/open-gil` slash command. To install the skill globally for your local Claude Code:
+
+```bash
+git clone https://github.com/doul735/open_tools.git
+mkdir -p "$HOME/.claude/skills/open-gil"
+cp open_tools/packages/open-gil/skills/open-gil/SKILL.md "$HOME/.claude/skills/open-gil/SKILL.md"
+```
+
+Then restart Claude Code or open a new session. If you open Claude Code from inside the cloned repository, the project skill in `.claude/skills/open-gil` is also available. See the official [Claude Code skills docs](https://docs.claude.com/en/docs/claude-code/skills) for the skill directory format.
 
 Direct terminal use is also available:
 

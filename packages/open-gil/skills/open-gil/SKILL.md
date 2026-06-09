@@ -21,6 +21,21 @@ Assume a fresh agent environment does not have a TMAP key. Before attempting a r
 
 For public first-time onboarding, prefer the human-terminal path: the user installs `open-gil`, runs `open-gil setup` in Terminal/iTerm, then asks the agent to plan routes. Agent-assisted installation is secondary because API-key entry requires a real interactive terminal and some agent shells may not share the same runtime environment as the user's normal terminal.
 
+Claude Code slash-command note:
+
+- Installing the `open-gil` CLI does not automatically register `/open-gil` in Claude Code.
+- Claude Code loads skills from `~/.claude/skills/<name>/SKILL.md` for personal skills and from `.claude/skills/<name>/SKILL.md` for project skills.
+- If the user asks for full Claude Code onboarding or says `/open-gil` is missing, copy the package skill to the personal skill path:
+
+```bash
+mkdir -p "$HOME/.claude/skills/open-gil"
+cp "<path-to-open_tools>/packages/open-gil/skills/open-gil/SKILL.md" "$HOME/.claude/skills/open-gil/SKILL.md"
+```
+
+- Replace `<path-to-open_tools>` with the actual cloned repository path. Do not assume the author's local directory layout.
+- After copying the skill file, tell the user to restart Claude Code or open a new session before checking `/open-gil`.
+- Do not present this as API-key setup. It only installs Claude Code instructions; `open-gil setup` is still required for the TMAP key.
+
 1. Check whether `open-gil` is available and verify the installed version:
 
 ```bash
@@ -71,6 +86,7 @@ When reporting setup status, do not group TMAP and Kakao as equal blockers:
 - `open-gil setup` configures the required TMAP key only. Kakao REST API is not requested during setup; if needed later, it is configured separately with `open-gil config set-kakao-key`.
 - After install and TMAP setup are complete, the primary next step for agent users is natural-language route planning in Claude Code/Codex. Do not make direct terminal CLI usage sound like the main workflow.
 - Mention full binary paths only as operational detail for direct terminal commands or for the agent's own command execution. Prefer: "이제 Claude Code나 Codex에서 자연어로 길찾기를 요청하시면 됩니다." Then add the full path only if the user wants to run commands manually.
+- If Claude Code `/open-gil` was installed, report the skill path separately from the CLI binary path so users do not confuse the two.
 
 If the TMAP key is missing, stop before route planning and show this kind of Korean message:
 

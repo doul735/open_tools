@@ -8,6 +8,7 @@
 - Clarified that persistent venv installs should not be deleted during cleanup when the user still needs to run `setup` or use open-gil.
 - Clarified that public first-time onboarding should prefer terminal-based installation and API-key setup before agent use.
 - Clarified that `open-gil setup` configures only the required TMAP key, and that natural-language agent use is the primary workflow after setup.
+- Added Claude Code `/open-gil` onboarding guidance and documented that CLI installation and Claude Code skill registration are separate steps.
 
 ## 0.1.5
 
