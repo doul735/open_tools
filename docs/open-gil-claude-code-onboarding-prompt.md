@@ -7,9 +7,8 @@
 open-gil을 처음 설치하고 Claude Code에서 /open-gil로 쓸 수 있게 준비해 주세요.
 
 규칙:
-- model-log, memory, 개인 프로젝트 로그는 수정하지 마세요.
 - API 키를 채팅창에 요구하지 마세요.
-- TMAP API 키 입력은 사용자가 macOS Terminal/iTerm 같은 일반 터미널에서 직접 하도록 안내하세요.
+- TMAP API 키 입력은 사용자가 Claude Code 안이 아닌 일반 터미널에서 직접 하도록 안내하세요.
 - sudo, 전역 pip install, /tmp venv, shell PATH/alias/symlink 수정은 하지 마세요.
 - 길찾기 실행은 하지 마세요. 설치와 설정 상태 확인까지만 하세요.
 
