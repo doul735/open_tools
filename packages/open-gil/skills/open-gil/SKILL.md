@@ -68,6 +68,9 @@ When reporting setup status, do not group TMAP and Kakao as equal blockers:
 
 - TMAP API key is required. If missing, route calculation must stop.
 - Kakao REST API key is optional. If missing, only Kakao Local coordinate fallback is unavailable.
+- `open-gil setup` configures the required TMAP key only. Kakao REST API is not requested during setup; if needed later, it is configured separately with `open-gil config set-kakao-key`.
+- After install and TMAP setup are complete, the primary next step for agent users is natural-language route planning in Claude Code/Codex. Do not make direct terminal CLI usage sound like the main workflow.
+- Mention full binary paths only as operational detail for direct terminal commands or for the agent's own command execution. Prefer: "이제 Claude Code나 Codex에서 자연어로 길찾기를 요청하시면 됩니다." Then add the full path only if the user wants to run commands manually.
 
 If the TMAP key is missing, stop before route planning and show this kind of Korean message:
 
@@ -86,6 +89,7 @@ open-gil setup
 $HOME/.local/share/open-gil/venv/bin/open-gil setup
 
 Kakao REST API 키는 선택 사항입니다. 없어도 TMAP 키가 있으면 경로 계산을 시도할 수 있습니다.
+open-gil setup은 TMAP 키만 설정합니다. Kakao 키 입력 단계가 나오지 않는 것이 정상입니다.
 키 값은 화면에 표시하지 않습니다.
 ```
 

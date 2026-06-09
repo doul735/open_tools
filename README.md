@@ -47,6 +47,13 @@ open-gil config show
 ```
 
 Do not paste your TMAP API key into an AI chat. `open-gil setup` asks for the key in your terminal and stores it locally.
+`open-gil setup` configures the required TMAP key only. Kakao REST API is optional and can be configured later with `open-gil config set-kakao-key` if you need coordinate fallback.
+
+After setup, the main workflow is to ask Claude Code, Codex, or another agent in natural language:
+
+```text
+내일 오후 1시에 올림픽홀 공연이 있는데, 송도에서 몇 시에 출발하면 돼?
+```
 
 If `pipx` is unavailable, use a persistent venv instead of `/tmp`:
 
