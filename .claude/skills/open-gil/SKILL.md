@@ -42,7 +42,7 @@ cp "<path-to-open_tools>/packages/open-gil/skills/open-gil/SKILL.md" "$HOME/.cla
 open-gil --version
 ```
 
-Use `open-gil` 0.1.4 or newer. If the command is missing or the version is older, install or upgrade before continuing.
+Use `open-gil` 0.1.6 or newer. If the command is missing or the version is older, install or upgrade before continuing.
 
 2. If it is not installed, prefer the PyPI package. If `pipx` already has `open-gil`, upgrade it:
 
@@ -56,7 +56,7 @@ pipx upgrade open-gil
 ```bash
 python3 -m venv "$HOME/.local/share/open-gil/venv"
 "$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade pip
-"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.4"
+"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.6"
 OPEN_GIL_BIN="$HOME/.local/share/open-gil/venv/bin/open-gil"
 "$OPEN_GIL_BIN" --version
 ```

@@ -43,7 +43,7 @@ If `pipx` is not installed and you do not want to change your system setup, use 
 ```bash
 python3 -m venv "$HOME/.local/share/open-gil/venv"
 "$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade pip
-"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.4"
+"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.6"
 OPEN_GIL_BIN="$HOME/.local/share/open-gil/venv/bin/open-gil"
 "$OPEN_GIL_BIN" --version
 ```

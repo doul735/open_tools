@@ -17,7 +17,7 @@ open-gil을 처음 설치하고 Claude Code에서 /open-gil로 쓸 수 있게 �
 2. 현재 작업 폴더 아래 `open_tools`가 없으면 `https://github.com/doul735/open_tools.git`을 클론하고, 있으면 `git pull --ff-only`로 최신화하세요. 로컬 변경이나 충돌 때문에 최신화할 수 없으면 임의로 지우거나 덮어쓰지 말고 멈춰서 이유를 설명하세요.
 3. `packages/open-gil/skills/open-gil/SKILL.md`를 읽고 설치 규칙을 따르세요.
 4. `pipx`가 있으면 `pipx install open-gil` 또는 `pipx upgrade open-gil`을 사용하세요.
-5. `pipx`가 없으면 `$HOME/.local/share/open-gil/venv`에 영구 venv를 만들고 `open-gil>=0.1.5`를 설치하세요. `/tmp`는 쓰지 마세요.
+5. `pipx`가 없으면 `$HOME/.local/share/open-gil/venv`에 영구 venv를 만들고 `open-gil>=0.1.6`을 설치하세요. `/tmp`는 쓰지 마세요.
 6. Claude Code에서 `/open-gil`이 뜨도록 아래 파일을 설치하세요. 기존 파일이 있으면 새 파일과 같은지 비교하고, 다르면 open_tools의 최신 파일로 교체하세요.
    - 원본: `./open_tools/packages/open-gil/skills/open-gil/SKILL.md`
    - 대상: `~/.claude/skills/open-gil/SKILL.md`
