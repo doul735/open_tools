@@ -22,6 +22,8 @@ LLM은 길찾기 질문에 그럴듯한 답을 만들 수 있지만, 실제 대�
 
 Recommended for most users: install and configure `open-gil` in your own terminal first, then ask Claude Code, Codex, or another agent to use it.
 
+If you want Claude Code to clone the repo, install the CLI, and register the `/open-gil` skill in one pass, use the Korean onboarding prompt in [Open Gil Claude Code Onboarding Prompt](https://github.com/doul735/open_tools/blob/main/docs/open-gil-claude-code-onboarding-prompt.md).
+
 Agent-assisted installs can be useful for checking a setup, but API-key entry needs a real interactive terminal and some agent shells may not share the same runtime environment as your normal terminal.
 
 Install from PyPI:
@@ -34,13 +36,14 @@ open-gil config show
 ```
 
 Do not paste your TMAP API key into an AI chat. `open-gil setup` asks for the key in your terminal and stores it locally.
+`open-gil setup` configures the required TMAP key only. Kakao REST API is optional and can be configured later with `open-gil config set-kakao-key` if you need coordinate fallback.
 
 If `pipx` is not installed and you do not want to change your system setup, use a persistent venv under your home directory:
 
 ```bash
 python3 -m venv "$HOME/.local/share/open-gil/venv"
 "$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade pip
-"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.4"
+"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.6"
 OPEN_GIL_BIN="$HOME/.local/share/open-gil/venv/bin/open-gil"
 "$OPEN_GIL_BIN" --version
 ```
@@ -65,6 +68,26 @@ If you used the persistent venv fallback, run setup and checks with the full pat
 ```
 
 그 다음 바로 물어볼 수 있습니다.
+
+In Claude Code or Codex:
+
+```text
+내일 오후 1시에 올림픽홀 공연이 있는데, 송도에서 몇 시에 출발하면 돼?
+```
+
+### Claude Code `/open-gil`
+
+Installing the CLI does not automatically register the Claude Code `/open-gil` slash command. To install the skill globally for your local Claude Code:
+
+```bash
+git clone https://github.com/doul735/open_tools.git
+mkdir -p "$HOME/.claude/skills/open-gil"
+cp open_tools/packages/open-gil/skills/open-gil/SKILL.md "$HOME/.claude/skills/open-gil/SKILL.md"
+```
+
+Then restart Claude Code or open a new session. If you open Claude Code from inside the cloned repository, the project skill in `.claude/skills/open-gil` is also available. See the official [Claude Code skills docs](https://docs.claude.com/en/docs/claude-code/skills) for the skill directory format.
+
+Direct terminal use is also available:
 
 ```bash
 open-gil plan \
@@ -186,6 +209,7 @@ JSON
 - TMAP POI 장소명 검색이 `OPEN_GIL_AUTH_FORBIDDEN`, `OPEN_GIL_PLACE_NOT_FOUND`, `OPEN_GIL_QUOTA_EXCEEDED`로 실패하고 `KAKAO_REST_API_KEY`가 있으면 Kakao Local 주소/키워드 검색으로 좌표를 보조 확인합니다.
 - 좌표가 확정되면 `open-gil plan --json`을 좌표 입력으로 다시 실행합니다. 이때 경로, 출발시각, 요금, 환승 정보는 TMAP Transit API 결과만 사용합니다.
 - Kakao Local 후보가 애매하거나 민감한 장소면 에이전트가 임의로 고르지 않고 사용자에게 선택 또는 좌표 제공을 요청해야 합니다.
+- 정확한 숫자 좌표가 없으면 주소, 인근 역, 출구, 동네 중심점으로 좌표를 추정하지 않습니다. 이 경우 Kakao Local 설정, 정확한 좌표, 또는 더 구체적인 지도 링크를 요청해야 합니다.
 - TMAP Transit API 자체가 권한 오류, 한도 초과, 경로 없음으로 실패하면 경로 계산은 불가능합니다.
 
 즉 “자연어 스킬”은 좌표가 확정되고 Transit API가 성공하면 동작합니다. Kakao Local은 좌표화 fallback일 뿐이며, 경로 계산 source of truth는 항상 TMAP Transit API입니다.
@@ -193,6 +217,7 @@ JSON
 ## Coordinates
 
 이미 장소를 확정했다면 좌표를 직접 넣을 수 있습니다. 좌표가 있으면 장소명 검색보다 우선합니다.
+단, 좌표는 정확한 숫자 좌표여야 합니다. 주소만 확인된 장소나 인근 지하철역/출구 좌표를 대신 쓰는 방식은 지원하지 않습니다.
 
 ```bash
 open-gil plan \

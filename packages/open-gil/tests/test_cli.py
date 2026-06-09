@@ -16,7 +16,7 @@ def test_version_option() -> None:
     result = runner.invoke(cli.app, ["--version"])
 
     assert result.exit_code == 0
-    assert "open-gil 0.1.5" in result.stdout
+    assert "open-gil 0.1.6" in result.stdout
 
 
 def test_plan_json_reports_missing_key(monkeypatch, tmp_path: Path) -> None:

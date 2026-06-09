@@ -26,7 +26,7 @@ The first package is `open-gil`, a public-transit departure planner for Seoul, G
 
 - Route calculation source of truth: TMAP Transit API
 - Coordinate fallback: Kakao Local API, optional and used only for coordinate lookup
-- Agent surfaces: Codex repo skill in `.agents/skills/open-gil`, package skill in `packages/open-gil/skills/open-gil`
+- Agent surfaces: Codex repo skill in `.agents/skills/open-gil`, Claude Code project skill in `.claude/skills/open-gil`, package skill in `packages/open-gil/skills/open-gil`
 - Output contract: stable JSON envelope plus human-readable Korean route summaries
 - Hard guardrail: one TMAP Transit route calculation per natural-language request
 - Release status: `open-gil` is published on PyPI
@@ -36,6 +36,8 @@ For the design history, tradeoffs, and next steps, see [Open Gil Development Sto
 ## Install
 
 Recommended for most users: install and configure `open-gil` in your own terminal first, then use it from Claude Code, Codex, or another agent.
+
+If you saw open-gil publicly and want Claude Code to set up the repo and skill for you, copy the Korean onboarding prompt in [Open Gil Claude Code Onboarding Prompt](docs/open-gil-claude-code-onboarding-prompt.md).
 
 Agent-assisted installs can be useful for checking a setup, but API-key entry needs a real interactive terminal and some agent shells may not share the same runtime environment as your normal terminal.
 
@@ -47,13 +49,30 @@ open-gil config show
 ```
 
 Do not paste your TMAP API key into an AI chat. `open-gil setup` asks for the key in your terminal and stores it locally.
+`open-gil setup` configures the required TMAP key only. Kakao REST API is optional and can be configured later with `open-gil config set-kakao-key` if you need coordinate fallback.
+
+After setup, the main workflow is to ask Claude Code, Codex, or another agent in natural language:
+
+```text
+내일 오후 1시에 올림픽홀 공연이 있는데, 송도에서 몇 시에 출발하면 돼?
+```
+
+Claude Code note: installing the CLI does not automatically register the `/open-gil` slash command. To make `/open-gil` available in every Claude Code project, install the skill file once:
+
+```bash
+git clone https://github.com/doul735/open_tools.git
+mkdir -p "$HOME/.claude/skills/open-gil"
+cp open_tools/packages/open-gil/skills/open-gil/SKILL.md "$HOME/.claude/skills/open-gil/SKILL.md"
+```
+
+Then restart Claude Code or open a new session. If you open Claude Code from inside this repository, the project skill in `.claude/skills/open-gil` is also available. See the official [Claude Code skills docs](https://docs.claude.com/en/docs/claude-code/skills) for the skill directory format.
 
 If `pipx` is unavailable, use a persistent venv instead of `/tmp`:
 
 ```bash
 python3 -m venv "$HOME/.local/share/open-gil/venv"
 "$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade pip
-"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.4"
+"$HOME/.local/share/open-gil/venv/bin/python" -m pip install --upgrade "open-gil>=0.1.6"
 OPEN_GIL_BIN="$HOME/.local/share/open-gil/venv/bin/open-gil"
 "$OPEN_GIL_BIN" --version
 ```
@@ -89,10 +108,12 @@ packages/
     skills/open-gil/
 .agents/
   skills/open-gil/
+.claude/
+  skills/open-gil/
 docs/
 ```
 
-The root `.agents/skills` directory is for Codex repo-scoped skills. Package-local `skills/` directories are included with the package source distribution.
+The root `.agents/skills` directory is for Codex repo-scoped skills. The root `.claude/skills` directory is for Claude Code project-scoped skills. Package-local `skills/` directories are included with the package source distribution.
 
 ## Principles
 
@@ -100,6 +121,7 @@ The root `.agents/skills` directory is for Codex repo-scoped skills. Package-loc
 - Release each tool as its own package and CLI.
 - Keep provider roles explicit. For example, `open-gil` uses Kakao Local only for coordinate fallback and TMAP Transit as the route-calculation source of truth.
 - Do not commit API keys, raw user prompts, private location logs, or live route-search traces.
+- Do not let agents approximate coordinates from nearby stations, exits, or neighborhood points. If exact coordinates are unavailable, ask for Kakao setup, a map link, or user-supplied coordinates.
 - Prefer honest fallback behavior over pretending two map providers will produce the same route.
 
 ## Current Commands

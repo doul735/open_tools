@@ -2,11 +2,16 @@
 
 ## Unreleased
 
+## 0.1.6
+
 - Clarified that `/tmp` virtual environments are only for throwaway checks, and documented a persistent user venv fallback when `pipx` is unavailable.
 - Clarified that persistent venv users must run the full open-gil binary path unless they add it to `PATH`.
 - Clarified that install-only agent runs should not edit shell startup files, create aliases, or add symlinks.
 - Clarified that persistent venv installs should not be deleted during cleanup when the user still needs to run `setup` or use open-gil.
 - Clarified that public first-time onboarding should prefer terminal-based installation and API-key setup before agent use.
+- Clarified that `open-gil setup` configures only the required TMAP key, and that natural-language agent use is the primary workflow after setup.
+- Added Claude Code `/open-gil` onboarding guidance and documented that CLI installation and Claude Code skill registration are separate steps.
+- Tightened coordinate fallback guardrails so agents must not approximate coordinates from nearby stations, exits, or address-only search results.
 
 ## 0.1.5
 
