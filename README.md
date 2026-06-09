@@ -121,6 +121,7 @@ The root `.agents/skills` directory is for Codex repo-scoped skills. The root `.
 - Release each tool as its own package and CLI.
 - Keep provider roles explicit. For example, `open-gil` uses Kakao Local only for coordinate fallback and TMAP Transit as the route-calculation source of truth.
 - Do not commit API keys, raw user prompts, private location logs, or live route-search traces.
+- Do not let agents approximate coordinates from nearby stations, exits, or neighborhood points. If exact coordinates are unavailable, ask for Kakao setup, a map link, or user-supplied coordinates.
 - Prefer honest fallback behavior over pretending two map providers will produce the same route.
 
 ## Current Commands

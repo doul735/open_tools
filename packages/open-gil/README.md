@@ -209,6 +209,7 @@ JSON
 - TMAP POI 장소명 검색이 `OPEN_GIL_AUTH_FORBIDDEN`, `OPEN_GIL_PLACE_NOT_FOUND`, `OPEN_GIL_QUOTA_EXCEEDED`로 실패하고 `KAKAO_REST_API_KEY`가 있으면 Kakao Local 주소/키워드 검색으로 좌표를 보조 확인합니다.
 - 좌표가 확정되면 `open-gil plan --json`을 좌표 입력으로 다시 실행합니다. 이때 경로, 출발시각, 요금, 환승 정보는 TMAP Transit API 결과만 사용합니다.
 - Kakao Local 후보가 애매하거나 민감한 장소면 에이전트가 임의로 고르지 않고 사용자에게 선택 또는 좌표 제공을 요청해야 합니다.
+- 정확한 숫자 좌표가 없으면 주소, 인근 역, 출구, 동네 중심점으로 좌표를 추정하지 않습니다. 이 경우 Kakao Local 설정, 정확한 좌표, 또는 더 구체적인 지도 링크를 요청해야 합니다.
 - TMAP Transit API 자체가 권한 오류, 한도 초과, 경로 없음으로 실패하면 경로 계산은 불가능합니다.
 
 즉 “자연어 스킬”은 좌표가 확정되고 Transit API가 성공하면 동작합니다. Kakao Local은 좌표화 fallback일 뿐이며, 경로 계산 source of truth는 항상 TMAP Transit API입니다.
@@ -216,6 +217,7 @@ JSON
 ## Coordinates
 
 이미 장소를 확정했다면 좌표를 직접 넣을 수 있습니다. 좌표가 있으면 장소명 검색보다 우선합니다.
+단, 좌표는 정확한 숫자 좌표여야 합니다. 주소만 확인된 장소나 인근 지하철역/출구 좌표를 대신 쓰는 방식은 지원하지 않습니다.
 
 ```bash
 open-gil plan \

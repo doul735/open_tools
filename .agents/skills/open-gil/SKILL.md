@@ -12,7 +12,7 @@ Natural-language status:
 - It works when origin/destination coordinates can be confirmed and TMAP Transit route lookup succeeds.
 - It may not work as a pure place-name lookup when the TMAP POI API is forbidden or unavailable.
 - If TMAP POI fails but `KAKAO_REST_API_KEY` is configured, the CLI uses Kakao Local as coordinate fallback.
-- If API coordinate fallback fails but coordinates can be confirmed from the user or public sources, rerun with coordinates and explain that only coordinate resolution used the fallback.
+- If API coordinate fallback fails but exact numeric coordinates can be confirmed from the user or an authoritative source, rerun with coordinates and explain that only coordinate resolution used the fallback.
 - It does not work when TMAP Transit itself is forbidden, quota-exceeded, or cannot find a route.
 
 ## First-Run Setup
@@ -126,7 +126,7 @@ Do not phrase the first-run blocker as only "Do you have a key?" Explain why the
 3. Call the CLI with JSON and `--json`.
 4. Read only the JSON envelope. Do not scrape human text.
 5. If the CLI returns `OPEN_GIL_PLACE_AMBIGUOUS`, show the candidates and ask the user to choose. Re-run with coordinates and labels from the chosen candidate.
-6. If the CLI returns `OPEN_GIL_AUTH_FORBIDDEN` during place-name lookup, do not say the whole route planner failed. First ensure `KAKAO_REST_API_KEY` is configured. If Kakao fallback is unavailable or ambiguous, follow the coordinate fallback workflow below, then rerun with `{lat, lon, label}`.
+6. If the CLI returns `OPEN_GIL_AUTH_FORBIDDEN` during place-name lookup, do not say the whole route planner failed. First ensure `KAKAO_REST_API_KEY` is configured. If Kakao fallback is unavailable or ambiguous, follow the coordinate fallback workflow below. Do not invent or approximate coordinates to keep going.
 7. Summarize the selected result in Korean. Always include boarding and alighting points from `candidates[].legs[]` for every bus/subway/train leg.
 8. If `planning_note` is present, mention it. Do not claim that previous/next departures were exhaustively searched.
 9. End every user-facing route answer with NAVER Maps and KakaoMap route links from `verification_links`.
@@ -139,16 +139,21 @@ Automatic provider order:
 
 1. TMAP POI
 2. Kakao Local keyword/address search, only when `KAKAO_REST_API_KEY` is configured
-3. User-supplied coordinates or public/authoritative coordinate confirmation
+3. User-supplied exact coordinates or authoritative exact numeric coordinate confirmation
 
 If `origin.source` or `destination.source` starts with `kakao_local`, disclose that Kakao Local was used only for coordinate resolution.
 
-1. Use public/authoritative sources only to confirm place identity and coordinates:
-   - official venue/building pages, road-address pages, public map/geocoder results, or user-supplied coordinates
-2. If the place is ambiguous, residential/private, or has multiple plausible candidates, ask the user to choose or provide coordinates before calling TMAP Transit.
-3. If there is exactly one high-confidence public candidate and the user has asked you to proceed, you may run the coordinate-based CLI call and clearly disclose the coordinate fallback in the final answer.
-4. Never use public web results for departure time, route, fare, transfer, stop, or delay data.
-5. Rerun the CLI with coordinates:
+1. Use public/authoritative sources only to confirm place identity and exact numeric coordinates:
+   - acceptable: user-supplied coordinates, official venue/building pages that publish coordinates, road-address/geocoder pages that show exact latitude/longitude, or public map/geocoder results with exact latitude/longitude for the exact place/address
+   - not acceptable: address-only pages, nearest station/exit information, an approximate neighborhood point, manually estimated coordinates, or a nearby landmark used as a proxy
+2. If exact coordinates are unavailable, the place is ambiguous, the place is residential/private, or multiple plausible candidates exist, stop and ask the user for one of these before calling TMAP Transit:
+   - enable/configure Kakao Local fallback
+   - provide exact coordinates
+   - provide a map link or more specific place that exposes exact coordinates
+3. If there is exactly one high-confidence public candidate with exact numeric coordinates and the user has asked you to proceed, you may run the coordinate-based CLI call and clearly disclose the coordinate fallback in the final answer.
+4. Never say approximate coordinates are "good enough" because a nearby station or transit access point seems obvious. Do not claim a coordinate approximation will not affect the route.
+5. Never use public web results for departure time, route, fare, transfer, stop, or delay data.
+6. Rerun the CLI with coordinates:
 
 ```bash
 cat <<'JSON' | open-gil plan --json
@@ -163,7 +168,7 @@ JSON
 Required disclosure when fallback was used:
 
 ```text
-장소 좌표는 Kakao Local 또는 공개/사용자 제공 자료로 확인했고, 출발시각/경로/요금/환승 계산은 확정 좌표로 호출한 TMAP Transit API 결과만 사용했습니다.
+장소 좌표는 Kakao Local 또는 정확한 숫자 좌표가 표시된 공개/사용자 제공 자료로 확인했고, 출발시각/경로/요금/환승 계산은 확정 좌표로 호출한 TMAP Transit API 결과만 사용했습니다.
 ```
 
 ## Commands
@@ -226,6 +231,7 @@ For `event_at` and `arrive_by`, the MVP uses a quota-safe single TMAP route look
 
 - Say the result is based on TMAP API data.
 - If Kakao Local was used, say it was used only for coordinate lookup and that route calculation remained TMAP Transit.
+- Do not use estimated, approximate, or nearby-station coordinates. If exact numeric coordinates are not available after TMAP POI/Kakao/user/public confirmation, stop and ask for better coordinates or Kakao setup.
 - Do not stop at a route summary such as "BUS M6450 -> BUS 360"; include where to board and where to get off.
 - If a WALK leg has the same start/end name with 0m or 0 seconds between two transit legs, summarize it as a same-stop transfer using the previous alighting route and next boarding route.
 - Mention that field delays, disruptions, and event congestion can differ.
