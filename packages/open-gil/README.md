@@ -2,6 +2,8 @@
 
 TMAP API로 계산하고, LLM이 지어내지 못하게 막는 대중교통 출발시간 CLI.
 
+![open-gil demo](https://raw.githubusercontent.com/doul735/open_tools/main/docs/assets/open-gil-demo.gif)
+
 `open-gil`은 “몇 시에 출발해야 하지?”라는 질문에 대해 출발지, 목적지, 일정 시각을 받아 대중교통 경로와 추천 출발 시간을 계산합니다. Codex, Claude Code 같은 LLM은 자연어를 구조화하고 확인 질문을 하는 데만 쓰고, 출발시각, 환승, 소요시간, 도착시각은 TMAP 대중교통 API 응답으로만 만듭니다.
 
 초기 MVP 범위는 서울, 경기, 인천입니다.

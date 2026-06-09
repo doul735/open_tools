@@ -5,6 +5,8 @@
 
 Open-source agent tools that keep LLMs useful without letting them invent operational facts.
 
+![open-gil demo](docs/assets/open-gil-demo.gif)
+
 This repository is the home for the `open_*` series. Stars, issues, discussions, and project-level documentation live here; each tool is still packaged and released independently so users can install only what they need.
 
 ## What This Is
